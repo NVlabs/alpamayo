@@ -1,6 +1,10 @@
 # Alpamayo-R1
 
-Inference code for [Alpamayo-R1](https://arxiv.org/abs/2511.00088): a reasoning Vision-Language-Action (VLA) model for autonomous driving.
+<p align="left">
+       🤗 <a href="https://huggingface.co/nvidia/Alpamayo-R1-10B">Hugging Face</a>&nbsp&nbsp | &nbsp&nbsp📑 <a href="https://arxiv.org/pdf/2511.00088">Paper</a>&nbsp&nbsp
+</p>
+
+Inference code for Alpamayo-R1: a reasoning Vision-Language-Action (VLA) model for autonomous driving.
 
 ## Requirements
 
