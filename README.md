@@ -1,18 +1,14 @@
-# Alpamayo-R1
+<div align="center">
 
-<p align="left">
-       🤗 <a href="https://huggingface.co/nvidia/Alpamayo-R1-10B">Hugging Face</a>&nbsp&nbsp | &nbsp&nbsp📑 <a href="https://arxiv.org/pdf/2511.00088">Paper</a>&nbsp&nbsp
-</p>
+# 🏔️ Alpamayo-R1
 
-Inference code for Alpamayo-R1: a reasoning Vision-Language-Action (VLA) model for autonomous driving.
+### Bridging Reasoning and Action Prediction for Generalizable Autonomous Driving
 
-## Requirements
+[![HuggingFace](https://img.shields.io/badge/🤗%20Model-Alpamayo--R1--10B-blue)](https://huggingface.co/nvidia/Alpamayo-R1-10B)
+[![arXiv](https://img.shields.io/badge/arXiv-2511.00088-b31b1b.svg)](https://arxiv.org/abs/2511.00088)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](./LICENSE)
 
-- Python 3.12.\*
-- CUDA-capable GPU (requires at least 24GB of VRAM for bfloat16 inference)
-- [uv](https://docs.astral.sh/uv/) package manager
-
-## Environment Setup
+</div>
 
 ### 1. Install uv (if not already installed)
 
@@ -24,7 +20,6 @@ export PATH="$HOME/.local/bin:$PATH"
 ### 2. Set up the environment
 
 ```bash
-# Create virtual environment and install dependencies
 uv venv ar1_venv
 source ar1_venv/bin/activate
 uv sync --active
@@ -32,8 +27,9 @@ uv sync --active
 
 ### 3. Authenticate with HuggingFace
 
-The model requires access to a gated dataset. First, request access at:
-https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles
+The model requires access to gated resources. Request access here:
+- 🤗 [PhysicalAI-Autonomous-Vehicles Dataset](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles)
+- 🤗 [Alpamayo-R1-10B Model](https://huggingface.co/nvidia/Alpamayo-R1-10B)
 
 Then authenticate:
 
