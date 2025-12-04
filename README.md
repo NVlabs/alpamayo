@@ -103,6 +103,7 @@ Apache License 2.0 - see [LICENSE](./LICENSE) for details.
 Alpamayo-R1 is a pre-trained reasoning model designed to accelerate research and development in the autonomous vehicle (AV) domain. It is intended to serve as a foundation for a range of AV-related use cases-from instantiating an end-to-end backbone for autonomous driving to enabling reasoning-based auto-labeling tools. In short, it should be viewed as a building block for developing customized AV applications.
 
 Important notes:
+
 - Alpamayo-R1 is provided solely for research, experimentation, and evaluation purposes.
 - Alpamayo-R1 is not a fully fledged driving stack. Among other limitations, it lacks access to critical real-world sensor inputs, does not incorporate required diverse and redundant safety mechanisms, and has not undergone automotive-grade validation for deployment.
 

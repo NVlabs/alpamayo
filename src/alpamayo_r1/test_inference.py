@@ -26,7 +26,7 @@ from alpamayo_r1 import helper
 
 
 # Example clip ID
-clip_id = "1e468fcd-ca25-46dc-b398-65c083bb23e4"
+clip_id = "030c760c-ae38-49aa-9ad8-f5650a545d26"
 print(f"Loading dataset for clip_id: {clip_id}...")
 data = load_physical_aiavdataset(clip_id, t0_us=5_100_000)
 print("Dataset loaded.")
