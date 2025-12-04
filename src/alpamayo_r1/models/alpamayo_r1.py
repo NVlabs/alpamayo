@@ -48,7 +48,6 @@ class AlpamayoR1(ReasoningVLA):
         config: AlpamayoR1Config,
         pretrained_modules: dict[str, torch.nn.Module] | None = None,
         original_vocab_size: int | None = None,
-        print_param_count: bool = True,
     ):
         super().__init__(config, pretrained_modules, original_vocab_size, print_param_count=False)
 
