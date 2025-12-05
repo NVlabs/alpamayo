@@ -22,6 +22,7 @@ import hydra.utils as hyu
 import numpy as np
 import torch
 from transformers import AutoConfig, AutoModel, StoppingCriteriaList
+from transformers.generation.logits_process import LogitsProcessor, LogitsProcessorList
 
 from alpamayo_r1.action_space import ActionSpace
 from alpamayo_r1.models.base_model import ReasoningVLA
@@ -35,6 +36,44 @@ from alpamayo_r1.models.token_utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class ExpertLogitsProcessor(LogitsProcessor):
+    """Masks out the logits for discrete trajectory tokens."""
+
+    def __init__(self, traj_token_offset: int, traj_vocab_size: int):
+        """Initialize the ExpertLogitsProcessor.
+
+        Args:
+            traj_token_offset: The offset of the trajectory tokens.
+            traj_vocab_size: The vocabulary size of the trajectory tokens.
+        """
+        super().__init__()
+        self.traj_token_offset = traj_token_offset
+        self.traj_vocab_size = traj_vocab_size
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        """Call the ExpertLogitsProcessor to mask out the logits for discrete trajectory tokens.
+
+        The discrete trajectory tokens are not used for the expert model thus masking them out for
+        better CoC generation.
+
+        Args:
+            input_ids: The input IDs.
+            scores: The scores.
+
+        Returns:
+            The scores.
+        """
+        # Create a mask filled with zeros
+        mask = torch.zeros_like(scores)
+        mask[:, self.traj_token_offset : self.traj_token_offset + self.traj_vocab_size] = float(
+            "-inf"
+        )
+
+        # Apply the mask to the scores
+        scores = scores + mask
+        return scores
 
 
 class AlpamayoR1(ReasoningVLA):
@@ -148,10 +187,19 @@ class AlpamayoR1(ReasoningVLA):
         # because the KV cache is updated after the next token is generated
         eos_token_id = self.tokenizer.convert_tokens_to_ids(to_special_token("traj_future_start"))
         stopping_criteria = StoppingCriteriaList([StopAfterEOS(eos_token_id=eos_token_id)])
+        logits_processor = LogitsProcessorList(
+            [
+                ExpertLogitsProcessor(
+                    traj_token_offset=self.config.traj_token_start_idx,
+                    traj_vocab_size=self.config.traj_vocab_size,
+                )
+            ]
+        )
         vlm_outputs = self.vlm.generate(
             input_ids=input_ids,
             generation_config=generation_config,
             stopping_criteria=stopping_criteria,
+            logits_processor=logits_processor,
             **tokenized_data,
         )
         vlm_outputs.rope_deltas = self.vlm.model.rope_deltas
