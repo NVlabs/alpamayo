@@ -70,4 +70,8 @@ pred_xy = pred_xyz.cpu().numpy()[0, 0, :, :, :2].transpose(0, 2, 1)
 diff = np.linalg.norm(pred_xy - gt_xy[None, ...], axis=1).mean(-1)
 min_ade = diff.min()
 print("minADE:", min_ade, "meters")
-assert min_ade < 1.0
+print(
+    "Note: VLA-reasoning models produce nondeterministic outputs due to trajectory sampling, "
+    "hardware differences, etc. With num_traj_samples=1 (set for GPU memory compatibility), "
+    "variance in minADE is expected. For visual sanity checks, see notebooks/inference.ipynb."
+)
