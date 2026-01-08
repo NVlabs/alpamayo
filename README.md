@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏔️ Alpamayo-R1
+# 🏔️ Alpamayo 1
 
 ### Bridging Reasoning and Action Prediction for Generalizable Autonomous Driving
 
@@ -9,6 +9,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](./LICENSE)
 
 </div>
+
+_Note: Following the release of [NVIDIA Alpamayo](https://nvidianews.nvidia.com/news/alpamayo-autonomous-vehicle-development) at CES 2026, Alpamayo-R1 has been renamed to Alpamayo 1._
 
 ### 1. Install uv (if not already installed)
 
@@ -28,8 +30,8 @@ uv sync --active
 ### 3. Authenticate with HuggingFace
 
 The model requires access to gated resources. Request access here:
-- 🤗 [PhysicalAI-Autonomous-Vehicles Dataset](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles)
-- 🤗 [Alpamayo-R1-10B Model](https://huggingface.co/nvidia/Alpamayo-R1-10B)
+- 🤗 [Physical AI AV Dataset](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles)
+- 🤗 [Alpamayo Model Weights](https://huggingface.co/nvidia/Alpamayo-R1-10B)
 
 Then authenticate:
 
@@ -61,7 +63,7 @@ We provide a notebook with similar inference code at `notebook/inference.ipynb`.
 ## Project Structure
 
 ```
-alpamayo_r1_release/
+alpamayo/
 ├── notebook/
 │   └── inference.ipynb                  # Example notebook
 ├── src/
@@ -100,11 +102,11 @@ Apache License 2.0 - see [LICENSE](./LICENSE) for details.
 
 ## Disclaimer
 
-Alpamayo-R1 is a pre-trained reasoning model designed to accelerate research and development in the autonomous vehicle (AV) domain. It is intended to serve as a foundation for a range of AV-related use cases-from instantiating an end-to-end backbone for autonomous driving to enabling reasoning-based auto-labeling tools. In short, it should be viewed as a building block for developing customized AV applications.
+Alpamayo 1 is a pre-trained reasoning model designed to accelerate research and development in the autonomous vehicle (AV) domain. It is intended to serve as a foundation for a range of AV-related use cases-from instantiating an end-to-end backbone for autonomous driving to enabling reasoning-based auto-labeling tools. In short, it should be viewed as a building block for developing customized AV applications.
 
 Important notes:
 
-- Alpamayo-R1 is provided solely for research, experimentation, and evaluation purposes.
-- Alpamayo-R1 is not a fully fledged driving stack. Among other limitations, it lacks access to critical real-world sensor inputs, does not incorporate required diverse and redundant safety mechanisms, and has not undergone automotive-grade validation for deployment.
+- Alpamayo 1 is provided solely for research, experimentation, and evaluation purposes.
+- Alpamayo 1 is not a fully fledged driving stack. Among other limitations, it lacks access to critical real-world sensor inputs, does not incorporate required diverse and redundant safety mechanisms, and has not undergone automotive-grade validation for deployment.
 
 By using this model, you acknowledge that it is a research tool intended to support scientific inquiry, benchmarking, and exploration—not a substitute for a certified AV stack. The developers and contributors disclaim any responsibility or liability for the use of the model or its outputs.
