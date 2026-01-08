@@ -1,15 +1,15 @@
-## Alpamayo-R1 OSS Contribution Rules
+## Alpamayo 1 OSS Contribution Rules
 
 #### Issue Tracking
 
-- All enhancement, bugfix, or change requests must begin with the creation of an [Alpamayo-R1 Issue Request](https://github.com/NVlabs/alpamayo/issues).
-  - The issue request must be reviewed by Alpamayo-R1 researchers and approved prior to code review.
+- All enhancement, bugfix, or change requests must begin with the creation of an [Alpamayo 1 Issue Request](https://github.com/NVlabs/alpamayo/issues).
+  - The issue request must be reviewed by Alpamayo 1 researchers and approved prior to code review.
 
 #### Coding Guidelines
 
 - Please follow the existing conventions in the relevant file, submodule, module, and project when you add new code or when you extend/fix existing functionality.
 
-- To maintain consistency in code formatting and style, you should also run `pre-commit format` on the modified sources with the provided configuration file. This applies Alpamayo-R1 code formatting rules to:
+- To maintain consistency in code formatting and style, you should also run `pre-commit format` on the modified sources with the provided configuration file. This applies Alpamayo 1 code formatting rules to:
 
   - class, function/method, and variable/field naming
   - comment style
@@ -51,12 +51,12 @@
 
 Developer workflow for code contributions is as follows:
 
-1. Developers must first [fork](https://help.github.com/en/articles/fork-a-repo) the [upstream](https://github.com/NVlabs/alpamayo) Alpamayo-R1 OSS repository.
+1. Developers must first [fork](https://help.github.com/en/articles/fork-a-repo) the [upstream](https://github.com/NVlabs/alpamayo) Alpamayo 1 OSS repository.
 
 2. Git clone the forked repository and push changes to the personal fork.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_FORK.git Alpamayo-R1
+git clone https://github.com/YOUR_USERNAME/YOUR_FORK.git Alpamayo-1
 # Checkout the targeted branch and commit changes
 # Push the commits to a branch on the fork (remote).
 git push -u origin <local-branch>:<remote-branch>
@@ -66,10 +66,10 @@ git push -u origin <local-branch>:<remote-branch>
 
 - Exercise caution when selecting the source and target branches for the PR.
 - Creation of a PR creation kicks off the code review process.
-- At least one Alpamayo-R1 researcher will be assigned for the review.
+- At least one Alpamayo 1 researcher will be assigned for the review.
 - While under review, mark your PRs as work-in-progress by prefixing the PR title with [WIP].
 
-4. Since there is no CI/CD process in place yet, the PR will be accepted and the corresponding issue closed only after adequate testing has been completed, manually, by the developer and/or Alpamayo-R1 researcher reviewing the code.
+4. Since there is no CI/CD process in place yet, the PR will be accepted and the corresponding issue closed only after adequate testing has been completed, manually, by the developer and/or Alpamayo 1 researcher reviewing the code.
 
 #### Signing Your Work
 
