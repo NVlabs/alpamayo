@@ -28,7 +28,7 @@ BASE_PROCESSOR_NAME = "Qwen/Qwen3-VL-2B-Instruct"
 def create_message(frames: torch.Tensor):
     """Construct the message using images and cot."""
     if frames.ndim != 4:
-        raise ValueError(f"frames.ndim={frames.ndim}, expected 4 (N, C, H, W)")
+        raise ValueError(f"{frames.ndim=}, expected 4 (N, C, H, W)")
 
     # NOTE: we expand the padding tokens to match training, so we can directly apply native processor from VLM.
     num_traj_token = 48
