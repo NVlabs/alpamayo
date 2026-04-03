@@ -1,0 +1,128 @@
+redis = "12800"
+
+[train]
+resume = false
+epoch = 20
+output_dir = "/lustre/fsw/portfolios/av/projects/av_alpamayo_reasoning/users/rant/alpamayo_r1_release_output"
+epsilon = 1e-6
+optm_name = "AdamW"
+optm_lr = 5e-6
+optm_impl = "fused"
+optm_weight_decay = 0.01
+optm_betas = [0.9, 0.999]
+optm_warmup_steps = 0
+optm_grad_norm_clip = 1.0
+async_tp_enabled = false
+compile = false
+param_dtype = "bfloat16"
+fsdp_reduce_dtype = "float32"
+fsdp_offload = false
+fsdp_reshard_after_forward = "default"
+train_batch_per_replica = 40
+sync_weight_interval = 1
+validation_step = 1
+validation_batch_per_replica = 2
+non_text = true
+
+[validation]
+enable = false
+# Validation frequency in training steps.
+freq = 50
+# Validation batch size per rollout replica (defaults to rollout.batch_size if omitted).
+batch_size = 4
+temperature = 0.6
+n_generation = 6
+
+
+[rollout]
+backend = "reasoning_vla_vllm_rollout"
+gpu_memory_utilization = 0.8
+enable_chunked_prefill = false
+n_generation = 12
+batch_size = 3
+quantization = "none"
+seed = 42
+
+[rollout.sampling_config]
+temperature = 0.6
+top_p = 0.98
+repetition_penalty = 1
+
+[policy]
+model_name_or_path = "/lustre/fsw/portfolios/av/projects/av_alpamayo_reasoning/users/rant/alpamayo_1.5_converted-from-hf-327"
+model_max_length = 4096
+model_gradient_checkpointing = true
+
+[logging]
+logger = ['console', 'wandb']
+project_name = "Alpamayo_RL_OSS"
+experiment_name = "head_pai_test_p_4_r_8_lr_1e-5_os2"
+
+
+[train.train_policy]
+type = "grpo"
+trainer_type = "reasoning_vla_grpo"
+dataloader_shuffle = false
+dataset.split = "train"
+# Enable rank-based dispatch (mesh-rank sharding) so each replica consumes a stable shard.
+# Note: Cosmos config key is `data_dispatch_as_rank_in_mesh` (verified from runtime config dump).
+data_dispatch_as_rank_in_mesh = true
+temperature = 1.0
+epsilon_low = 0.2
+epsilon_high = 0.28
+lower_bound_ratio = 10.0
+kl_beta = 0.0
+mu_iterations = 1
+mini_batch = 1
+min_filter_prefix_tokens = 1
+allowed_outdated_steps = 50
+
+[train.ckpt]
+enable_checkpoint = true
+save_freq = 50
+save_mode = "async"
+max_keep = 1
+
+[rollout.parallelism]
+n_init_replicas = 1
+tp_size = 1
+cp_size = 1
+dp_shard_size = 1
+pp_size = 1
+dp_replicate_size = 1
+
+[policy.parallelism]
+n_init_replicas = 1
+tp_size = 1
+cp_size = 1
+dp_shard_size = 8
+pp_size = 1
+dp_replicate_size = 1
+
+
+[custom.alpamayo]
+idx_rng_enable = false
+idx_rng_seed = 1234
+idx_rng_debug = false
+
+
+[custom.alpamayo.reward]
+traj_l2_weight = 0.4
+comfort_weight = 0.1
+
+[custom.alpamayo.prefetch]
+
+# Prefetch cache size; <= 0 disables node-prefetch (legacy synchronous dataset fetch path). please set this to be train_batch_per_replica * replica per node.
+capacity = 16
+
+# Unix socket directory (node-local). Default is /tmp.
+# socket_dir = "/tmp"
+
+num_workers = 5
+# Log verbosity for node prefetch server/client.
+# One of: "off" | "error" | "warn" | "info" | "debug" | "trace"
+# - "trace" is very verbose (includes client RPC payload/resp).
+log_level = "info"
+
+# Print per-request detailed logs (cache hit/miss, dataset fetch, per-role shm put, latency).
+log_request_details = false

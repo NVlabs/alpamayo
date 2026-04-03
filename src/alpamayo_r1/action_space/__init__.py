@@ -15,8 +15,10 @@
 
 from .action_space import ActionSpace
 from .unicycle_accel_curvature import UnicycleAccelCurvatureActionSpace
+from .discrete_action_space import DiscreteTrajectoryTokenizer
 
 __all__ = [
     "ActionSpace",
     "UnicycleAccelCurvatureActionSpace",
+    "DiscreteTrajectoryTokenizer",
 ]

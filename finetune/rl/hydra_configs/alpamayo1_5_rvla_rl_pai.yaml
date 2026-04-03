@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+data:
+  train:
+    collate_fn:
+      _target_: alpamayo_r1.processor.qwen_processor.get_preprocess_data_fn_from_model_config
+      _partial_: true
+      model_config: ${data.train.dataset.model_config}
+      include_camera_ids: ${data.train.dataset.vla_preprocess_args.include_camera_ids}
+      include_frame_nums: ${data.train.dataset.vla_preprocess_args.include_frame_nums}
+    dataset:
+      local_dir: ???
+      clip_index_metadata: clip_index.parquet
+      features_metadata: features.csv
+      include_extr_intr: true
+      reshape_tensors_for_rl: true
+      use_default_keyframe: false
+      model_config:
+        vlm_name_or_path: nvidia/Cosmos-Reason2-8B
+        traj_vocab_size: 4000
+        tokens_per_history_traj: 48
+        tokens_per_future_traj: 128
+        min_pixels: 163840
+        max_pixels: 196608
+      vla_preprocess_args:
+        _target_: alpamayo_r1.processor.qwen_processor.get_preprocess_data_fn_from_model_config
+        include_camera_ids: true
+        include_frame_nums: true
+        components_order:
+          - image
+          - traj_history
+          - prompt
+          - cot
+        components_prompt:
+          - cot
+          - traj_future
+        label_components: []
+        generation_mode: true
+
+      _target_: alpamayo_r1.data.pai.PAIDataset
+      _recursive_: false
+    _target_: torch.utils.data.DataLoader
+    num_workers: 1
+    prefetch_factor: 2
+    pin_memory: true
+    persistent_workers: true
+
+use_one_logger: true
+n_frames: 4
+num_history_steps: 16
+num_future_steps: 64
+max_val_iter: null
+fine_tune_from_ckpt: null

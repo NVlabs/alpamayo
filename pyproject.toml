@@ -5,9 +5,12 @@ requires-python = "==3.12.*"
 dependencies = [
   "accelerate>=1.12.0",
   "av>=16.0.1",
+  "cosmos-rl",
   "einops>=0.8.1",
   "hydra-colorlog>=1.2.0",
   "hydra-core>=1.3.2",
+  "mediapy>=1.2.4",
+  "opencv-python>=4.10.0",
   "pandas>=2.3.3",
   "physical_ai_av>=0.2.0",
   "pillow>=12.0.0",
@@ -15,11 +18,25 @@ dependencies = [
   "torchvision>=0.23.0",
   "transformers==4.57.1",
   "flash-attn>=2.8.3",
+  "rich>=14.3.3",
+  "wandb>=0.25.0",
+  "torchmetrics==1.8.2",
+  "deepspeed==0.18.2",
+  "vllm==0.11.0",
 ]
 
 [build-system]
-requires = ["uv_build>=0.9.7,<0.10.0"]
-build-backend = "uv_build"
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+# Ship both the library (`alpamayo_r1` under `src/`) and the Cosmos-RL finetune
+# package as top-level `rl` (`finetune/rl/`). After `pip install`, use
+# `import alpamayo_r1` and `import rl` — no manual PYTHONPATH / sys.path edits.
+[tool.hatch.build.targets.wheel]
+packages = ["src/alpamayo_r1", "finetune/rl"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/pyproject.toml", "/src", "/finetune/rl"]
 
 [dependency-groups]
 dev = [
@@ -31,6 +48,9 @@ dev = [
 
 [tool.uv]
 no-build-isolation-package = ["flash-attn"]
+
+[tool.uv.sources]
+cosmos-rl = { git = "https://github.com/nvidia-cosmos/cosmos-rl.git", rev = "747d1bd" }
 
 [tool.ruff]
 line-length = 100

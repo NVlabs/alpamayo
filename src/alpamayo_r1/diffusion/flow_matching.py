@@ -32,7 +32,10 @@ class FlowMatching(BaseDiffusion):
     def __init__(
         self,
         int_method: Literal["euler"] = "euler",
+        train_timestep_sampler: Literal["uniform", "beta"] = "beta",
         num_inference_steps: int = 10,
+        train_ignore_guidance_rate: float = 0.1,
+        inference_guidance_weight: float = 1.0,
         *args,
         **kwargs,
     ):
@@ -44,7 +47,15 @@ class FlowMatching(BaseDiffusion):
         """
         super().__init__(*args, **kwargs)
         self.int_method = int_method
+        self.train_timestep_sampler = train_timestep_sampler
         self.num_inference_steps = num_inference_steps
+        self.train_ignore_guidance_rate = train_ignore_guidance_rate
+        self.inference_guidance_weight = inference_guidance_weight
+        if self.train_timestep_sampler == "beta":
+            self.beta_dist = torch.distributions.beta.Beta(
+                torch.tensor(1.5, dtype=torch.float32), torch.tensor(1.0, dtype=torch.float32)
+            )
+            self.beta_scale_constant = 0.999
 
     @torch.no_grad()
     def sample(
@@ -125,3 +136,38 @@ class FlowMatching(BaseDiffusion):
         if return_all_steps:
             return torch.stack(all_steps, dim=1), time_steps
         return x
+
+    def construct_training_data(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        """Construct the training data for the flow matching model."""
+        batch_size = x.shape[0]
+
+        if self.train_timestep_sampler == "uniform":
+            t = torch.rand((batch_size,), device=x.device)
+        elif self.train_timestep_sampler == "beta":
+            t = self.beta_dist.sample((batch_size,)).to(x.device)
+            t = self.beta_scale_constant - t * self.beta_scale_constant
+        else:
+            raise ValueError(f"Invalid time sampler: {self.train_timestep_sampler}")
+
+        while len(t.shape) < len(x.shape):
+            t = t.unsqueeze(-1)
+
+        noise = torch.randn_like(x)
+        noisy_x = t * x + (1 - t) * noise
+        training_data = {
+            "x": x,
+            "noisy_x": noisy_x,
+            "timesteps": t,
+            "noise": noise,
+            "is_drop_guidance": None,
+        }
+        return training_data
+
+    def compute_loss_from_pred(
+        self, training_data: dict[str, torch.Tensor], pred: torch.Tensor
+    ) -> torch.Tensor:
+        """Training step for the flow matching model."""
+        x = training_data["x"]
+        noise = training_data["noise"]
+        target = (x - noise).to(dtype=pred.dtype)
+        return torch.nn.functional.mse_loss(target, pred)
