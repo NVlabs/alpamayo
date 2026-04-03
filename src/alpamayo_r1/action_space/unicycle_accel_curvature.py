@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 import torch
 from alpamayo_r1.action_space.action_space import ActionSpace
 from alpamayo_r1.action_space.utils import (
@@ -29,8 +27,10 @@ from alpamayo_r1.geometry.rotation import (
     rotation_matrix_torch,
     so3_to_yaw_torch,
 )
+from alpamayo_r1.common import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.RankedLogger(__name__, rank_zero_only=False)
+logger.setLevel("INFO")
 
 
 class UnicycleAccelCurvatureActionSpace(ActionSpace):

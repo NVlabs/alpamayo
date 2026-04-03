@@ -159,6 +159,9 @@ class PerWaypointActionInProjV2(torch.nn.Module):
         """
         B, T, _ = x.shape
 
+        x = x.float()
+        timesteps = timesteps.float()
+
         action_feats = torch.cat([s(x[:, :, i]) for i, s in enumerate(self.sinus)], dim=-1)
         timestep_feats = self.timestep_fourier_encoder(timesteps[..., -1])
         timestep_feats = timestep_feats.repeat(1, T, 1)

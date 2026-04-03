@@ -4,7 +4,7 @@
 
 ### Bridging Reasoning and Action Prediction for Generalizable Autonomous Driving
 
-[![HuggingFace](https://img.shields.io/badge/🤗%20Model-Alpamayo--R1--10B-blue)](https://huggingface.co/nvidia/Alpamayo-R1-10B)
+[![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Model-Alpamayo--R1--10B-blue)](https://huggingface.co/nvidia/Alpamayo-R1-10B)
 [![arXiv](https://img.shields.io/badge/arXiv-2511.00088-b31b1b.svg)](https://arxiv.org/abs/2511.00088)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](./LICENSE)
 
@@ -12,21 +12,22 @@
 
 ## Updates
 
-* [March 2026] [🏔️ Alpamayo 1.5](https://github.com/NVlabs/alpamayo1.5) has been released! We recommend all users check out the new version for improved performance, new features, and continued support! 🚀
-* [January 2026] Following the release of [NVIDIA Alpamayo](https://nvidianews.nvidia.com/news/alpamayo-autonomous-vehicle-development) at CES 2026, Alpamayo-R1 has been renamed to Alpamayo 1.
+- [April 2026] ⚙️ [Fine-tuning scripts](#fine-tuning-scripts) released: [SFT](docs/FINETUNE_SFT.md) for supervised fine-tuning and [RL](finetune/rl/README.md) for reinforcement learning-based post-training.
+- [March 2026] [🏔️ Alpamayo 1.5](https://github.com/NVlabs/alpamayo1.5) has been released! We recommend all users check out the new version for improved performance, new features, and continued support! 🚀
+- [January 2026] Following the release of [NVIDIA Alpamayo](https://nvidianews.nvidia.com/news/alpamayo-autonomous-vehicle-development) at CES 2026, Alpamayo-R1 has been renamed to Alpamayo 1.
 
----
+______________________________________________________________________
 
 **📖 Please read the [HuggingFace Model Card](https://huggingface.co/nvidia/Alpamayo-R1-10B) first!**
 The model card contains comprehensive details on model architecture, inputs/outputs, licensing, and tested hardware configurations. This GitHub README focuses on setup, usage, and frequently asked questions.
 
 ## Requirements
 
-| Requirement | Specification |
-|-------------|---------------|
-| **Python** | 3.12.x (see `pyproject.toml`) |
-| **GPU** | NVIDIA GPU with ≥24 GB VRAM (e.g., RTX 3090, RTX 4090, A5000, H100) |
-| **OS** | Linux (tested); other platforms unverified |
+| Requirement | Specification                                                       |
+| ----------- | ------------------------------------------------------------------- |
+| **Python**  | 3.12.x (see `pyproject.toml`)                                       |
+| **GPU**     | NVIDIA GPU with ≥24 GB VRAM (e.g., RTX 3090, RTX 4090, A5000, H100) |
+| **OS**      | Linux (tested); other platforms unverified                          |
 
 > ⚠️ **Note**: GPUs with less than 24 GB VRAM will likely encounter CUDA out-of-memory errors.
 
@@ -50,17 +51,15 @@ uv sync --active
 ### 3. Authenticate with HuggingFace
 
 The model requires access to gated resources. Request access here:
+
 - 🤗 [Physical AI AV Dataset](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles)
 - 🤗 [Alpamayo Model Weights](https://huggingface.co/nvidia/Alpamayo-R1-10B)
 
 Then authenticate using the HuggingFace CLI:
 
 ```bash
-# Install huggingface-cli if not already installed (included in transformers)
-pip install huggingface_hub
-
-# Login with your token
-huggingface-cli login
+pip install -U huggingface_hub
+hf auth login
 ```
 
 Get your access token at: https://huggingface.co/settings/tokens
@@ -91,16 +90,29 @@ We provide a notebook with similar inference code at `notebook/inference.ipynb`.
 Alpamayo 1 implements the architecture described in our paper [*"Alpamayo-R1: Bridging Reasoning and Action Prediction for Generalizable Autonomous Driving in the Long Tail
 "*](https://arxiv.org/abs/2511.00088), including:
 
-| Feature | Paper Description | This Release (v1.0) |
-|---------|-------------------|---------------------|
-| **Chain-of-Causation (CoC) reasoning** | Hybrid auto-labeling with human in the loop for reasoning traces | ✅ Included |
-| **Vision-Language-Action architecture** | Cosmos-Reason backbone + action expert | ✅ Included |
-| **Trajectory prediction** | 6.4s horizon, 64 waypoints at 10 Hz | ✅ Included |
-| **RL post-training** | Reinforcement learning for reasoning/action consistency | ❌ Not in this release |
-| **Route/navigation conditioning** | Explicit navigation or route inputs | ❌ Not in this release |
-| **Meta-actions/General VQA** | High-level behavior and visual question answering | ❌ Not in this release |
+| Feature                                 | Paper Description                                                | This Release (v1.0)    |
+| --------------------------------------- | ---------------------------------------------------------------- | ---------------------- |
+| **Chain-of-Causation (CoC) reasoning**  | Hybrid auto-labeling with human in the loop for reasoning traces | ✅ Included            |
+| **Vision-Language-Action architecture** | Cosmos-Reason backbone + action expert                           | ✅ Included            |
+| **Trajectory prediction**               | 6.4s horizon, 64 waypoints at 10 Hz                              | ✅ Included            |
+| **SFT fine-tuning (weights)**           | SFT trained model weights                                        | ✅ Included            |
+| **SFT fine-tuning (code)**              | Supervised fine-tuning pipeline                                  | ✅ Included            |
+| **RL post-training (weights)**          | RL post-trained model weights                                    | ❌ Not in this release |
+| **RL post-training (code)**             | RL post-training pipeline via Cosmos-RL                          | ✅ Included            |
+| **Route/navigation conditioning**       | Explicit navigation or route inputs                              | ❌ Not in this release |
+| **Meta-actions/General VQA**            | High-level behavior and visual question answering                | ❌ Not in this release |
 
-The current release focuses on the core supervised learning components. RL post-training and route conditioning are potential candidates for future releases. Stay tuned!
+This release includes the core model, SFT scripts, and the RL post-training pipeline. RL-trained weights, route conditioning, and meta-actions are candidates for future releases.
+
+## Fine-tuning Scripts
+
+| Method  | Description                                              | Docs                              |
+| ------- | -------------------------------------------------------- | --------------------------------- |
+| **SFT** | Supervised fine-tuning                                   | [SFT guide](docs/FINETUNE_SFT.md) |
+| **RL**  | Reinforcement learning-based post-training via Cosmos-RL | [RL guide](finetune/rl/README.md) |
+
+Please refer to the linked guides for compute requirements, step-by-step
+instructions, and fine-tuning FAQ.
 
 ## Frequently Asked Questions (FAQ)
 
@@ -143,6 +155,19 @@ No. The model weights are released under a **non-commercial license**. This rele
 
 ```
 alpamayo/
+├── finetune/
+│   ├── rl/                              # RL post-training
+│   │   ├── models/                      # Model wrappers & Cosmos-RL entry scripts
+│   │   ├── rewards/                     # Reward functions
+│   │   ├── prefetch/                    # Shared-memory data prefetch server
+│   │   ├── toml/                        # Cosmos-RL training configs
+│   │   ├── hydra_configs/               # Dataset & preprocessing configs
+│   │   └── README.md                    # RL post-training guide
+│   └── sft/                             # Supervised fine-tuning
+│       ├── configs/                     # Model configs
+│       ├── models/                      # Trainable wrappers
+│       ├── train_hf.py                  # Training script
+│       └── evaluate_hf.py               # Evaluation script
 ├── notebook/
 │   └── inference.ipynb                  # Example notebook
 ├── src/
@@ -178,6 +203,7 @@ config.attn_implementation = "sdpa"
 ### CUDA out-of-memory errors
 
 If you encounter OOM errors:
+
 1. Ensure you have a GPU with at least 24 GB VRAM
 2. Reduce `num_traj_samples` if generating multiple trajectories
 3. Close other GPU-intensive applications

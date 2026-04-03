@@ -1,0 +1,67 @@
+defaults:
+  # - /wandb: default # uncomment to enable W&B logging
+  - /vla_processor@data.train_dataset.vla_preprocess_args
+  - /vla_processor@data.val_dataset.vla_preprocess_args
+data:
+  collate_fn:
+    _target_: alpamayo_r1.processor.qwen_processor.collate_fn_from_model_config
+    _partial_: true
+  train_dataset:
+    _recursive_: false
+    _target_: alpamayo_r1.data.pai.PAIDataset
+    local_dir: ???
+    chunk_ids: "0-99"
+    use_default_keyframe: true
+    vla_preprocess_args:
+      generation_mode: false
+  val_dataset:
+    _recursive_: false
+    _target_: alpamayo_r1.data.pai.PAIDataset
+    local_dir: ???
+    chunk_ids: "99-100"
+    use_default_keyframe: true
+    vla_preprocess_args:
+      generation_mode: true
+paths:
+  output_dir: ./output_sft
+callbacks: {}
+evaluate:
+  max_eval_steps: -1
+  torch_dtype: bfloat16
+  metric_runner:
+    _target_: alpamayo_r1.metrics.metric_runner.MetricRunner
+    metrics:
+      - _target_: alpamayo_r1.metrics.metric_api.ReasoningSampler
+        num_traj_sets: 1
+        top_p: 0.98
+        temperature: 0.6
+        traj_only_generation: false
+        max_generation_length: 256
+      - _target_: alpamayo_r1.metrics.metric_api.DistanceMetrics
+trainer:
+  output_dir: ${paths.output_dir}
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 1e-4
+  warmup_steps: 100
+  logging_steps: 5
+  save_steps: 500
+  save_total_limit: 2
+  num_train_epochs: 3
+  bf16: True
+  dataloader_pin_memory: True
+  dataloader_num_workers: 2
+  remove_unused_columns: False
+  report_to: none # change to "wandb" when enabling W&B
+  lr_scheduler_type: cosine_warmup_with_min_lr
+  lr_scheduler_kwargs:
+    min_lr: 1e-6
+  # enable zero2 for stage 1 vlm finetuning
+  deepspeed: finetune/sft/configs/deepspeed/zero2.json
+  # enable gradient checkpointing for stage 1 vlm finetuning
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: false # recommended by PyTorch for performance
+task_name: alpamayo_r1_sft
+run_name: ${task_name}_${now:%Y%m%d}_${now:%H%M%S}

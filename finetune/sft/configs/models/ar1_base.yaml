@@ -1,0 +1,3 @@
+_target_: finetune.sft.models.sft_base_model.TrainableReasoningVLA.from_alpamayo_checkpoint
+checkpoint_path: ???
+vlm_name_or_path: Qwen/Qwen3-VL-8B-Instruct
