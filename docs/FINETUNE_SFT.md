@@ -105,7 +105,7 @@ You should see a loss curve similar to:
 This command evaluates the Stage-2 checkpoint against the `val_dataset` in the config:
 
 ```
-torchrun --nproc_per_node 8 -m finetune.sft.evaluate_hf --config-path pkg://finetune/sft/configs --config-name sft_stage2 evaluate.eval_ckpt /path/to/stage2/output/ckpt-xxx
+torchrun --nproc_per_node 8 -m finetune.sft.evaluate_hf --config-path pkg://finetune/sft/configs --config-name sft_stage2 evaluate.eval_ckpt=/path/to/stage2/output/ckpt-xxx
 ```
 
 With the defaults described above, `val/metric/min_ade` should fall below 1. Example metrics:
