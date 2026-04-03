@@ -1,0 +1,5 @@
+_target_: finetune.sft.models.sft_alpamayo_r1.TrainableAlpamayoR1.from_pretrained
+pretrained_model_name_or_path: nvidia/Alpamayo-R1-10B
+dtype: auto
+cotrain_vlm: false
+stage1_vlm_checkpoint_path: null

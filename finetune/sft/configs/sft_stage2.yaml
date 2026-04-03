@@ -1,0 +1,12 @@
+defaults:
+  - sft_base
+  - /models/ar1_expert@model
+  - _self_
+paths:
+  output_dir: output_stage2
+trainer:
+  gradient_checkpointing: false
+  deepspeed: null
+  ddp_find_unused_parameters: true
+evaluate:
+  eval_ckpt: null

@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 import einops
 import torch
 from alpamayo_r1.geometry.rotation import round_2pi_torch, so3_to_yaw_torch
 
-logger = logging.getLogger(__name__)
+from alpamayo_r1.common import logging
+
+logger = logging.RankedLogger(__name__, rank_zero_only=False)
+logger.setLevel("INFO")
 
 
 def unwrap_angle(phi: torch.Tensor) -> torch.Tensor:

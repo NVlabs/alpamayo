@@ -332,8 +332,8 @@ class ReasoningVLA(PreTrainedModel, TrajectoryFusionMixin):
         if config.max_pixels is not None:
             processor_kwargs["max_pixels"] = config.max_pixels
 
-        processor = AutoProcessor.from_pretrained(config.vlm_name_or_path, **processor_kwargs)
-        tokenizer = processor.tokenizer
+        self.processor = AutoProcessor.from_pretrained(config.vlm_name_or_path, **processor_kwargs)
+        tokenizer = self.processor.tokenizer
 
         if config.traj_vocab_size is not None:
             discrete_tokens = [f"<i{v}>" for v in range(config.traj_vocab_size)]
