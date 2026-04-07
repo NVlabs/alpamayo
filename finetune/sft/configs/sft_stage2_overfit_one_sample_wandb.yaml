@@ -1,0 +1,30 @@
+defaults:
+  - sft_stage2_single_h100
+  - /wandb: default
+  - _self_
+
+data:
+  train_dataset:
+    clip_index_metadata: clip_index_one_sample.parquet
+  val_dataset:
+    clip_index_metadata: clip_index_one_sample.parquet
+
+paths:
+  output_dir: output_stage2_overfit_one_sample
+
+evaluate:
+  eval_ckpt: null
+  max_eval_steps: 1
+
+trainer:
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 1
+  dataloader_num_workers: 0
+  logging_steps: 1
+  save_steps: 10
+  save_total_limit: 3
+  num_train_epochs: 1
+  max_steps: 40
+  warmup_steps: 0
+  report_to: wandb

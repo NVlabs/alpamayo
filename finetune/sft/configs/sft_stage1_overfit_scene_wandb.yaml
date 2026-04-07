@@ -1,0 +1,35 @@
+defaults:
+  - sft_stage1_single_h100
+  - /wandb: default
+  - _self_
+
+data:
+  train_dataset:
+    chunk_ids: 0
+    use_default_keyframe: false
+    clip_index_metadata: clip_index_scene_all12.parquet
+  val_dataset:
+    chunk_ids: 0
+    use_default_keyframe: false
+    clip_index_metadata: clip_index_scene_all12.parquet
+
+paths:
+  output_dir: output_stage1_overfit_scene
+
+evaluate:
+  eval_ckpt: null
+  max_eval_steps: 2
+
+trainer:
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 1
+  dataloader_num_workers: 0
+  logging_steps: 1
+  save_steps: 60
+  save_total_limit: 1
+  save_only_model: true
+  num_train_epochs: 1
+  max_steps: 60
+  warmup_steps: 0
+  report_to: wandb
