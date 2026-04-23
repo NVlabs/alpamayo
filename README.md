@@ -103,17 +103,7 @@ Alpamayo 1 implements the architecture described in our paper [*"Alpamayo-R1: Br
 | **Route/navigation conditioning**       | Explicit navigation or route inputs                              | ❌ Not in this release |
 | **Meta-actions/General VQA**            | High-level behavior and visual question answering                | ❌ Not in this release |
 
-This release includes the core model and inference scripts. SFT scripts, the RL post-training pipeline, and future post-training recipes are maintained in [Alpamayo Recipes](https://github.com/NVlabs/alpamayo-recipes).
-
-## Fine-tuning Scripts
-
-| Method  | Description                                              | Docs                              |
-| ------- | -------------------------------------------------------- | --------------------------------- |
-| **SFT** | Supervised fine-tuning                                   | [SFT guide](https://github.com/NVlabs/alpamayo-recipes/tree/main/recipes/alpamayo1_sft) |
-| **RL**  | Reinforcement learning-based post-training via Cosmos-RL | [RL guide](https://github.com/NVlabs/alpamayo-recipes/tree/main/recipes/alpamayo1_x_rl) |
-
-Please refer to the linked guides for compute requirements, step-by-step
-instructions, and fine-tuning FAQ.
+This release includes the core model, and the inference scripts. For SFT scripts, RL post-training pipeline, etc. please refer ro [Alpamayo Recipes](https://github.com/NVlabs/alpamayo-recipes).
 
 ## Frequently Asked Questions (FAQ)
 
@@ -156,32 +146,20 @@ No. The model weights are released under a **non-commercial license**. This rele
 
 ```
 alpamayo/
-├── finetune/
-│   ├── rl/                              # RL post-training
-│   │   ├── models/                      # Model wrappers & Cosmos-RL entry scripts
-│   │   ├── rewards/                     # Reward functions
-│   │   ├── prefetch/                    # Shared-memory data prefetch server
-│   │   ├── toml/                        # Cosmos-RL training configs
-│   │   ├── hydra_configs/               # Dataset & preprocessing configs
-│   │   └── README.md                    # RL post-training guide
-│   └── sft/                             # Supervised fine-tuning
-│       ├── configs/                     # Model configs
-│       ├── models/                      # Trainable wrappers
-│       ├── train_hf.py                  # Training script
-│       └── evaluate_hf.py               # Evaluation script
 ├── notebook/
 │   └── inference.ipynb                  # Example notebook
 ├── src/
 │   └── alpamayo_r1/
 │       ├── action_space/
 │       │   └── ...                      # Action space definitions
+│       ├── common/
+│       │   └── ...                      # logging utilities
 │       ├── diffusion/
 │       │   └── ...                      # Diffusion model components
 │       ├── geometry/
 │       │   └── ...                      # Geometry utilities and modules
 │       ├── models/
 │       │   ├── ...                      # Model components and utils functions
-│       ├── __init__.py                  # Package marker
 │       ├── config.py                    # Model and experiment configuration
 │       ├── helper.py                    # Utility functions
 │       ├── load_physical_aiavdataset.py # Dataset loader
