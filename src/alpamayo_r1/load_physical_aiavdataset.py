@@ -68,7 +68,26 @@ def load_physical_aiavdataset(
             - clip_id: The clip ID
     """
     if avdi is None:
-        avdi = physical_ai_av.PhysicalAIAVDatasetInterface()
+        try:
+            avdi = physical_ai_av.PhysicalAIAVDatasetInterface()
+        except IndexError as e:
+            # Upstream physical_ai_av.utils.hf_interface raises a bare IndexError
+            # when HuggingFace returns an empty paths-info response. The most common
+            # cause is missing authentication or no granted access to the gated
+            # `nvidia/PhysicalAI-Autonomous-Vehicles` dataset. Reraise with an
+            # actionable message instead of the cryptic upstream traceback.
+            # See issues #59, #61.
+            raise RuntimeError(
+                "Failed to initialize PhysicalAIAVDatasetInterface — the "
+                "HuggingFace API returned no metadata for the gated "
+                "`nvidia/PhysicalAI-Autonomous-Vehicles` dataset. "
+                "This usually means you have not authenticated with "
+                "HuggingFace or have not been granted access to the dataset.\n"
+                "  1. Request access: "
+                "https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles\n"
+                "  2. Authenticate: `pip install -U huggingface_hub && hf auth login`\n"
+                "See README §3 (Authenticate with HuggingFace) for details."
+            ) from e
 
     if camera_features is None:
         camera_features = [
