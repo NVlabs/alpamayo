@@ -95,9 +95,12 @@ def load_physical_aiavdataset(
         maybe_stream=maybe_stream,
     )
 
-    assert t0_us > num_history_steps * time_step * 1_000_000, (
-        "t0_us must be greater than the history time range"
-    )
+    history_time_range_us = num_history_steps * time_step * 1_000_000
+    if t0_us <= history_time_range_us:
+        raise ValueError(
+            f"{t0_us=} must be greater than the history time range "
+            f"({history_time_range_us=} us)"
+        )
 
     # Compute timestamps for trajectory sampling
     # History: [..., t0-0.2s, t0-0.1s, t0] (num_history_steps points ending at t0)
