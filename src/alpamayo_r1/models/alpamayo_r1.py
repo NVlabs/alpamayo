@@ -88,6 +88,15 @@ class AlpamayoR1(ReasoningVLA):
 
         # we only need the text config for the expert model
         expert_config = copy.deepcopy(self.vlm.config.text_config)
+        # The diffusion expert step builds a per-row 4D float attention mask
+        # in sample_trajectories_from_data_with_vlm_rollout (see lines below)
+        # to handle variable-length VLM rollouts. FlashAttention-2's transformers
+        # integration cannot consume arbitrary 4D float masks (it only supports
+        # causal or padded-varlen via cu_seqlens) and crashes with
+        # "cu_seqlens_q must have shape (batch_size + 1)". Pin the expert to
+        # SDPA so the model is usable when the VLM is loaded with FA2.
+        # See https://github.com/NVlabs/alpamayo/issues/52.
+        expert_config._attn_implementation = "sdpa"
         if config.expert_cfg is not None:
             for key, value in config.expert_cfg.items():
                 setattr(expert_config, key, value)
