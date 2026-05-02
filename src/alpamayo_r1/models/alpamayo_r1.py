@@ -154,7 +154,10 @@ class AlpamayoR1(ReasoningVLA):
         ego_history_xyz = data["ego_history_xyz"]
         ego_history_rot = data["ego_history_rot"]
         B, n_traj_group, _, _ = ego_history_xyz.shape
-        assert n_traj_group == 1, "Only one trajectory group is supported for inference."
+        if n_traj_group != 1:
+            raise ValueError(
+                f"Only one trajectory group is supported for inference, got {n_traj_group=}"
+            )
         tokenized_data = data["tokenized_data"]
         input_ids = tokenized_data.pop("input_ids")
         traj_data_vlm = {
