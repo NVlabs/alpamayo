@@ -27,16 +27,48 @@ import cv2
 def project_waypoints_ftheta(wp, cam_rot, cam_t, intr):
     """Project 3D waypoints onto 2D image plane using the f-theta camera model.
 
+    All inputs (`wp`, `cam_rot`, `cam_t`) must be expressed in the **same
+    reference frame** — typically the **rig (vehicle) frame** for the
+    PhysicalAI-AV dataset, where the calibration extrinsics are defined.
+    The PAI loader's `ego_future_xyz` (and `ego_history_xyz`) are already
+    in the ego-local frame at `t0`, which coincides with the rig frame at
+    `t0`, so they can be passed directly.
+
+    If you have waypoints in the world frame (e.g. from
+    `egomotion(timestamps).pose.translation`) you must transform them
+    into the rig frame at `t0` first:
+
+        p_rig = R_t0_inv @ (p_world - t0_xyz)
+
+    The extrinsic convention assumed by this function:
+      - `cam_t` is the camera origin expressed in the rig frame.
+      - `cam_rot` is the rotation matrix from the **camera frame to the
+        rig frame** (i.e. the camera's pose in the rig frame); this is
+        what `scipy.spatial.transform.Rotation.from_quat([qx,qy,qz,qw])
+        .as_matrix()` returns when `qx,qy,qz,qw` are loaded directly
+        from the PAI extrinsics table.
+
+    The camera frame is right-handed with **+z forward**; points behind
+    the camera (`z <= 0`) are dropped along with anything that falls
+    outside the image rectangle.
+
     Args:
-        wp: 3D waypoints in world coordinates, shape (N, 3).
-        cam_rot: Camera rotation matrix, shape (3, 3).
-        cam_t: Camera translation vector, shape (3,).
-        intr: Intrinsic parameters [width, height, cx, cy, fw_poly_0..4].
+        wp: 3D waypoints, shape (N, 3), in the rig frame.
+        cam_rot: Camera-to-rig rotation matrix, shape (3, 3).
+        cam_t: Camera origin in the rig frame, shape (3,).
+        intr: f-theta intrinsics
+            [width, height, cx, cy, fw_poly_0, fw_poly_1, fw_poly_2,
+             fw_poly_3, fw_poly_4].
 
     Returns:
-        Projected 2D pixel coordinates, shape (M, 2) for visible points.
+        Projected 2D pixel coordinates, shape (M, 2), of the visible subset.
+        Points with `z <= 0` (behind camera) or outside the image rectangle
+        are filtered out, so `M <= N`.
     """
     width, height, cx, cy, fw_poly_0, fw_poly_1, fw_poly_2, fw_poly_3, fw_poly_4 = intr
+    # (wp - cam_t) translates into a rig-origin-at-camera frame; right-multiplying
+    # by cam_rot (= R_cam_to_rig) is equivalent to R_rig_to_cam @ (wp - cam_t),
+    # which gives the points in the camera frame.
     cam_points = (wp - cam_t) @ cam_rot
 
     x, y, z = cam_points.T
