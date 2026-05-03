@@ -191,6 +191,29 @@ alpamayo/
 
 ## Troubleshooting
 
+### `IndexError: list index out of range` when loading the dataset
+
+If `load_physical_aiavdataset(...)` fails with a traceback ending in:
+
+```
+File ".../physical_ai_av/utils/hf_interface.py", line 231, in download_file
+    self.api.get_paths_info(paths=[filename], **self.repo_snapshot_info)[0].size
+IndexError: list index out of range
+```
+
+…you are not authenticated with HuggingFace, or you have not been granted
+access to the gated `nvidia/PhysicalAI-Autonomous-Vehicles` dataset.
+
+1. Request access at
+   [huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles).
+2. Authenticate locally:
+   ```bash
+   pip install -U huggingface_hub
+   hf auth login
+   ```
+
+See [§3 Authenticate with HuggingFace](#3-authenticate-with-huggingface) for details.
+
 ### Flash Attention issues
 
 The model uses Flash Attention 2 by default. If you encounter compatibility issues:
@@ -200,6 +223,19 @@ The model uses Flash Attention 2 by default. If you encounter compatibility issu
 config.attn_implementation = "sdpa"
 ```
 
+### `RuntimeError: cu_seqlens_q must have shape (batch_size + 1)` with FlashAttention-2
+
+This crash specifically affects the **diffusion expert** during trajectory
+sampling when FlashAttention-2 is forced globally. The expert step uses a
+custom 4D additive attention mask to handle variable-length VLM rollouts;
+FlashAttention-2's transformers integration cannot consume that mask shape.
+
+The shipped configuration sets the VLM to FA2 (where the long prefill
+benefits) and keeps the expert on SDPA, so this error should not appear
+under default usage. If you have manually flipped `attn_implementation`
+across the entire model, restore the default split or pin the expert
+back to SDPA via `expert_cfg.attn_implementation = "sdpa"`.
+
 ### CUDA out-of-memory errors
 
 If you encounter OOM errors:
@@ -207,6 +243,22 @@ If you encounter OOM errors:
 1. Ensure you have a GPU with at least 24 GB VRAM
 2. Reduce `num_traj_samples` if generating multiple trajectories
 3. Close other GPU-intensive applications
+
+### Verifying your local installation
+
+A quick smoke test before debugging anything else:
+
+```bash
+python -c "import torch; print(torch.cuda.is_available(), torch.cuda.device_count())"
+python -c "from alpamayo_r1.models.alpamayo_r1 import AlpamayoR1; print('alpamayo_r1 import OK')"
+huggingface-cli whoami    # Should print your username if authenticated
+```
+
+If all three succeed, run the end-to-end check:
+
+```bash
+python src/alpamayo_r1/test_inference.py
+```
 
 ## License
 
