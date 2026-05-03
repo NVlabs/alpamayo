@@ -68,26 +68,31 @@ def load_physical_aiavdataset(
             - clip_id: The clip ID
     """
     if avdi is None:
+        # Eagerly verify HuggingFace access to the gated dataset so users get
+        # an actionable error instead of the cryptic IndexError that
+        # physical_ai_av.utils.hf_interface raises when get_paths_info returns
+        # an empty response. Other failure modes (network errors, transient
+        # HF outages, etc.) propagate unchanged. See issues #59, #61.
+        from huggingface_hub import HfApi
+        from huggingface_hub.errors import GatedRepoError, RepositoryNotFoundError
+
         try:
-            avdi = physical_ai_av.PhysicalAIAVDatasetInterface()
-        except IndexError as e:
-            # Upstream physical_ai_av.utils.hf_interface raises a bare IndexError
-            # when HuggingFace returns an empty paths-info response. The most common
-            # cause is missing authentication or no granted access to the gated
-            # `nvidia/PhysicalAI-Autonomous-Vehicles` dataset. Reraise with an
-            # actionable message instead of the cryptic upstream traceback.
-            # See issues #59, #61.
+            HfApi().repo_info(
+                repo_id="nvidia/PhysicalAI-Autonomous-Vehicles",
+                repo_type="dataset",
+            )
+        except (GatedRepoError, RepositoryNotFoundError) as e:
             raise RuntimeError(
-                "Failed to initialize PhysicalAIAVDatasetInterface — the "
-                "HuggingFace API returned no metadata for the gated "
-                "`nvidia/PhysicalAI-Autonomous-Vehicles` dataset. "
-                "This usually means you have not authenticated with "
-                "HuggingFace or have not been granted access to the dataset.\n"
+                "Cannot access the gated `nvidia/PhysicalAI-Autonomous-Vehicles` "
+                "dataset on HuggingFace. This usually means you have not "
+                "authenticated with HuggingFace or have not been granted access "
+                "to the dataset.\n"
                 "  1. Request access: "
                 "https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles\n"
                 "  2. Authenticate: `pip install -U huggingface_hub && hf auth login`\n"
                 "See README §3 (Authenticate with HuggingFace) for details."
             ) from e
+        avdi = physical_ai_av.PhysicalAIAVDatasetInterface()
 
     if camera_features is None:
         camera_features = [
