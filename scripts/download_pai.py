@@ -147,11 +147,15 @@ def main() -> None:
         raise SystemExit(str(exc)) from exc
     print("download patterns", allow_patterns)
 
+    # `local_dir_use_symlinks` was deprecated in huggingface_hub 0.21 and
+    # removed in 0.34+; passing it raises TypeError on modern versions. The
+    # current behavior (no symlinks; files are copied/written into local_dir)
+    # is the only option when `local_dir` is provided, so the argument is
+    # redundant — drop it.
     downloaded_path = snapshot_download(
         repo_id=DEFAULT_REPO_ID,
         repo_type="dataset",
         local_dir=str(args.output_dir),
-        local_dir_use_symlinks=False,
         allow_patterns=allow_patterns,
     )
 
