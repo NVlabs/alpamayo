@@ -26,7 +26,7 @@ logger.setLevel("INFO")
 
 @distributed.rank_zero_only
 def init_wandb(
-    key: str,
+    key: str | None,
     team: str,
     project: str,
     group: str,
@@ -34,7 +34,20 @@ def init_wandb(
     output_dir: str,
     **kwargs,
 ) -> None:
-    """Initialize wandb."""
+    """Initialize wandb.
+
+    Args:
+        key: W&B API key. If ``None``, ``wandb.login`` is skipped and the
+            credentials cached in the user's home directory are used instead.
+        team: W&B entity (team) name.
+        project: W&B project name.
+        group: W&B run group.
+        name: W&B run name.
+        output_dir: Directory used for run config (``config.yaml``) and the
+            persisted run id (``.wandb_id``); also passed to ``wandb.init`` as
+            its working dir.
+        **kwargs: Forwarded to ``wandb.init``.
+    """
     if key is not None:
         # login wandb, otherwise it will load from the home directory
         wandb.login(key=key)
@@ -68,7 +81,7 @@ def init_wandb(
     )
 
 
-def _save_wandb_id(output_dir: str, wandb_id: str):
+def _save_wandb_id(output_dir: str, wandb_id: str) -> None:
     """Save the wandb id to the output_dir."""
     wandb_id_path = os.path.join(output_dir, ".wandb_id")
     with open(wandb_id_path, "w") as f:
