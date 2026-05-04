@@ -30,8 +30,14 @@ class MetricRunner:
 
     def run(
         self, model: Any, data_batch: dict[str, Any], output_batch: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Run the metrics one-by-one by the order of the metrics list."""
+    ) -> None:
+        """Run the metrics one-by-one in the order of the metrics list.
+
+        Each metric's ``evaluate`` output is collected, prefixed with
+        ``"metric/"``, and merged into ``output_batch`` in-place. Returns
+        ``None``: callers should read the metric values from ``output_batch``
+        after the call.
+        """
         per_sample_metrics = {}
         for metric in self.metrics:
             per_sample = metric.evaluate(model, data_batch, output_batch)
