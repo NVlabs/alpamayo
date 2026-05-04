@@ -48,8 +48,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--chunk-ids",
         type=str,
+        nargs="+",
         default=None,
-        help="Chunk IDs to download. Supports: single '0', multi '0 1', or range '0-3' (exclusive end, downloads 0,1,2). Downloads all if not specified.",
+        help=(
+            "Chunk IDs to download. Supports any combination of: single id "
+            "('--chunk-ids 0'), multiple ids ('--chunk-ids 0 1 2'), or range "
+            "('--chunk-ids 0-3' yields 0, 1, 2 — end is exclusive). "
+            "Downloads all chunks if not specified."
+        ),
     )
     parser.add_argument(
         "--camera",
@@ -83,6 +89,29 @@ def parse_args() -> argparse.Namespace:
     )
     args = parser.parse_args()
     return args
+
+
+def _expand_chunk_ids(raw: list[str] | None) -> list[int]:
+    """Expand the ``--chunk-ids`` argv list into a flat list of integer ids.
+
+    Each token may be a single id (``"3"``) or an inclusive-start /
+    exclusive-end range (``"0-3"`` -> ``[0, 1, 2]``). Tokens that themselves
+    contain whitespace (e.g. the legacy quoted form ``--chunk-ids "0 1 2"``)
+    are split first so previously documented usage keeps working.
+    """
+    if not raw:
+        return []
+
+    chunk_ids: list[int] = []
+    for token in raw:
+        for part in token.split():
+            if "-" in part:
+                start_str, end_str = part.split("-", 1)
+                start, end = int(start_str), int(end_str)
+                chunk_ids.extend(range(start, end))
+            else:
+                chunk_ids.append(int(part))
+    return chunk_ids
 
 
 def parse_component_subparts(args: argparse.Namespace) -> list[tuple[str, str]]:
@@ -127,16 +156,7 @@ def main() -> None:
         ) from exc
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    if args.chunk_ids is None:
-        args.chunk_ids = []
-    elif " " in args.chunk_ids:
-        args.chunk_ids = args.chunk_ids.split(" ")
-    elif "-" in args.chunk_ids:
-        start = int(args.chunk_ids.split("-")[0])
-        end = int(args.chunk_ids.split("-")[1])
-        args.chunk_ids = list(range(start, end))
-    else:
-        args.chunk_ids = [int(args.chunk_ids)]
+    args.chunk_ids = _expand_chunk_ids(args.chunk_ids)
 
     print("downloading chunks: ", args.chunk_ids if args.chunk_ids else "all")
 
