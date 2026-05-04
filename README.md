@@ -172,6 +172,9 @@ alpamayo/
 │   ├── inference.ipynb                  # Example inference notebook
 │   └── inspect_dataset.ipynb            # Dataset inspection notebook
 ├── scripts/
+│   ├── convert_cosmos_rl_checkpoint.py  # Convert Cosmos-RL checkpoints to HF format
+│   ├── convert_release_config_to_training.py  # Adapt release configs for training
+│   ├── curate_pai_samples.py            # Curate PAI clip subsets for RL
 │   └── download_pai.py                  # PhysicalAI-AV dataset downloader
 ├── docs/
 │   └── FINETUNE_SFT.md                  # SFT setup and configuration guide
