@@ -69,7 +69,7 @@ def _within_bound(
     min_bound = min_bound if min_bound is not None else -float("inf")
     max_bound = max_bound if max_bound is not None else float("inf")
     metric_within_bound = (metric > min_bound) & (metric < max_bound)
-    return torch.all(metric_within_bound, axis=-1).float()
+    return torch.all(metric_within_bound, dim=-1).float()
 
 
 def gather_dynamics(
