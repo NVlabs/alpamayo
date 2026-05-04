@@ -61,14 +61,14 @@ def sort_images_by_camera_ids(
     return tuple(result)
 
 
-def basic_collation_fn(batch, unstackable_keys: list[str] = []):
+def basic_collation_fn(batch, unstackable_keys: list[str] | None = None):
     """Collate function that does torch.stack on the keys that are tensors, and for the other keys
     returns a list.
     """
     stackable = {k: isinstance(v, torch.Tensor) for k, v in batch[0].items()}
 
     # set custom unstackable keys to False
-    for k in unstackable_keys:
+    for k in unstackable_keys or []:
         if k in stackable:
             stackable[k] = False
 
