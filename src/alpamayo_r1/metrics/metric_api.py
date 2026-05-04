@@ -159,8 +159,10 @@ class DistanceMetrics(Metric):
         prefix (str, optional): prefix of trajectory samples to use. Computes metrics on
             trajectories in output_batch with keys f"{prefix}pred_rot"
             Defaults to "".
-        group_by_scenarios (list[str], optional): Defaults to None.
-            if not None, then the metrics will be grouped by the scenario names in this list.
+        time_step (float, optional): seconds per step in the predicted/ground-truth
+            trajectories. Forwarded to the underlying ``compute_minade`` /
+            ``compute_ade`` calls and used to convert horizon counts into seconds
+            (e.g. ``int(3.0 / time_step)`` steps for the 3 s ADE). Defaults to 0.1.
         """
         self.prefix = prefix
         self.time_step = time_step
@@ -179,15 +181,22 @@ class DistanceMetrics(Metric):
             (prefix)+pred_rot [B, N, K, Tf, 3, 3] predicted rotations
             (prefix)+logprob: [B, N, K, Tf] log probabilities of predicted tokens
 
-        Returns dict[str,Tensor]:
-            # distance metrics
-            min_ade: [B] average min_ade (min over K, average over N)
-            corner_distance: [B] average min corner distance (min over K, average over N)
+        Returns:
+            dict[str, Tensor]: per-batch metrics of shape ``[B]``. All keys are
+            prefixed with ``self.prefix`` via ``apply_prefix``. The unprefixed
+            keys are:
 
-            # if N > 1, we have the following extra data item:
-            # for each value above, we collect the statistics _sq and _std, for example:
-            min_ade_sq: [B] average min_ade^2 (min over K, average over N)
-            min_ade_std: [B] std of min_ade
+            - ``min_ade``: mean min-ADE over the N traj sets, averaged over T.
+            - ``min_ade/by_t={H:.1f}``: mean min-ADE truncated to the first
+              ``int(H / time_step)`` timesteps, for each H in
+              ``[0.5, 1, 3, 5]`` seconds.
+            - ``ade``: ADE of the highest-logprob sample per traj set,
+              averaged over the N sets.
+            - ``ade/by_t=3.0``: same as ``ade`` but truncated to the first
+              3 seconds of trajectory (omitted if T is shorter than 3 s).
+            - ``corner_distance``: mean corner distance over the N sets.
+            - ``<key>_std``: stdev across the N sets for each of the above
+              when ``num_traj_sets > 1`` (added by ``summarize_metric``).
         """
         del model  # unused
 
