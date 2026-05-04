@@ -47,9 +47,11 @@ def launch_alpamayo_model(spec, ckpt_path: str | None = None) -> None:
 
     Args:
         spec: A ``ModelSpec`` instance describing the model components.
-        ckpt_path: Checkpoint path for data/tokenizer init.  If ``None``,
+        ckpt_path: Checkpoint path for data/tokenizer init. If ``None``,
             reads ``[policy].model_name_or_path`` from the TOML config
-            pointed to by the ``COSMOS_CONFIG`` env var.
+            whose path is passed as ``--config <path>`` in ``sys.argv``
+            (the Cosmos ``launch_replica.sh`` wrapper sets this
+            automatically). See ``_read_ckpt_path_from_toml``.
     """
     from cosmos_rl.launcher.worker_entry import main as launch_worker
     from cosmos_rl.policy.model.base import ModelRegistry
