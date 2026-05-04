@@ -168,23 +168,33 @@ alpamayo/
 │       ├── models/                      # Trainable wrappers
 │       ├── train_hf.py                  # Training script
 │       └── evaluate_hf.py               # Evaluation script
-├── notebook/
-│   └── inference.ipynb                  # Example notebook
+├── notebooks/
+│   ├── inference.ipynb                  # Example inference notebook
+│   └── inspect_dataset.ipynb            # Dataset inspection notebook
+├── scripts/
+│   └── download_pai.py                  # PhysicalAI-AV dataset downloader
+├── docs/
+│   └── FINETUNE_SFT.md                  # SFT setup and configuration guide
 ├── src/
 │   └── alpamayo_r1/
-│       ├── action_space/
-│       │   └── ...                      # Action space definitions
-│       ├── diffusion/
-│       │   └── ...                      # Diffusion model components
-│       ├── geometry/
-│       │   └── ...                      # Geometry utilities and modules
-│       ├── models/
-│       │   ├── ...                      # Model components and utils functions
+│       ├── action_space/                # Action space definitions
+│       ├── chat_template/               # Conversation building & chat templates
+│       ├── common/                      # Constants, logging, distributed utils
+│       ├── data/                        # PhysicalAI-AV data utilities
+│       ├── diffusion/                   # Diffusion model components
+│       ├── geometry/                    # Geometry utilities and modules
+│       ├── metrics/                     # Trajectory and distance metrics
+│       ├── models/                      # Model components and utils functions
+│       ├── processor/                   # Qwen-VL processor with expanded vocab
+│       ├── utils/                       # Token/label-mask helpers
+│       ├── visualization/               # Trajectory and waypoint visualizers
 │       ├── __init__.py                  # Package marker
 │       ├── config.py                    # Model and experiment configuration
 │       ├── helper.py                    # Utility functions
 │       ├── load_physical_aiavdataset.py # Dataset loader
-│       ├── test_inference.py            # Inference test script
+│       └── test_inference.py            # Inference test script
+├── CONTRIBUTING.md                      # Contribution guidelines
+├── LICENSE                              # License file
 ├── pyproject.toml                       # Project dependencies
 └── uv.lock                              # Locked dependency versions
 ```
