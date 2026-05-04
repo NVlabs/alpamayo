@@ -19,8 +19,11 @@
 example:
 python scripts/curate_pai_samples.py \
   --clip-index-path /path/to/PAI_datset/clip_index.parquet \
-  --chunk 3116-3119 --num-samples 16 \
+  --chunk 3116-3120 --num-samples 16 \
   --output-path /path/to/PAI_datset/clip_index_3116_mini.parquet
+
+Note: --chunk uses the same range semantics as scripts/download_pai.py
+(exclusive end). The example above selects chunks 3116, 3117, 3118, 3119.
 """
 
 import pandas as pd
@@ -43,7 +46,11 @@ def parse_args() -> argparse.Namespace:
         "-c",
         type=str,
         required=True,
-        help="chunk_id(s): single (e.g. 3116), space-separated (e.g. '3116 3117'), or range (e.g. 3116-3119)",
+        help=(
+            "chunk_id(s): single '3116', space-separated '3116 3117', "
+            "or range '3116-3120' (exclusive end, selects 3116,3117,3118,3119). "
+            "Mirrors --chunk-ids semantics in scripts/download_pai.py."
+        ),
     )
     parser.add_argument(
         "--num-samples", "-n", type=int, required=True, help="Number of samples to curate"
