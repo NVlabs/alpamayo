@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env python3
 r"""Convert nvidia/Alpamayo-R1-10B or nvidia/Alpamayo-1.5-10B into a RL training compatible format.
 
 This script downloads the HuggingFace releases, converts the config,
