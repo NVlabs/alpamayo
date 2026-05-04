@@ -21,18 +21,19 @@ import torch
 def summarize_metric(
     metric: Mapping[str, torch.Tensor], disable_summary: bool = False
 ) -> dict[str, torch.Tensor]:
-    """Replaces dict containing multi-dimensional metrics with mean, mean_square, and stdev.
+    """Replaces dict containing multi-dimensional metrics with mean and (optionally) stdev.
 
     Args:
         metric: dict[str,Tensor]
             name: shape [B, N]
-        disable_summary: bool, if True, return metric without summarizing over groups.
+        disable_summary: bool, if True, return only the per-name mean (no ``_std``
+            entries are added even when N > 1).
 
     Returns:
         dict[str,Tensor]
-            name: shape [B] # average
-            name_sq: shape [B] # average square
-            name_std: shape [B] # standard deviation over N
+            name: shape [B] # mean over the N axis
+            name_std: shape [B] # stdev over the N axis. Only present when
+                N > 1 and ``disable_summary`` is False.
     """
     result = {}
     for metric_name, val in metric.items():

@@ -72,9 +72,15 @@ def compute_minade(
         time_step (float): Time step of the trajectory.
 
     Returns:
-        dict[str, torch.Tensor]:
-            min_ade: [B], average min_ade over N groups for each batch element
-            min_ade_sq: [B], average squared min_ade over N groups, for each batch element
+        dict[str, torch.Tensor]: keys mapped to per-batch tensors of shape [B]:
+
+            - ``min_ade``: mean min-ADE over the N groups, averaged over all timesteps.
+            - ``min_ade/by_t={H:.1f}``: mean min-ADE over the N groups, averaged over the
+              first ``t`` timesteps for each ``t in timestep_horizons`` that satisfies
+              ``t <= T``. ``H = t * time_step`` is the horizon in seconds.
+            - ``<key>_std``: stdev across the N groups for each of the above keys.
+              Only added when ``N > 1`` and ``disable_summary`` is False
+              (see ``summarize_metric``).
     """
     _, N, _, T, _ = pred_xyz.shape
     # Filter timestep_horizons to only include those that don't exceed available timesteps
@@ -116,9 +122,12 @@ def compute_grouped_corner_distance(
         disable_summary (bool): if True, return corner_distance without summarizing over groups.
 
     Returns:
-        dict[str, torch.Tensor]:
-            corner_distance: [B], average corner distance over N groups
-            corner_distance_sq: [B], average squared corner distance over N groups
+        dict[str, torch.Tensor]: keys mapped to per-batch tensors of shape [B]:
+
+            - ``corner_distance``: mean corner distance over the N groups (after taking
+              the per-group min over the K samples and averaging over T and the 8 corners).
+            - ``corner_distance_std``: stdev across the N groups. Only added when
+              ``N > 1`` and ``disable_summary`` is False (see ``summarize_metric``).
     """
     _, N = pred_xyz.shape[:2]
     corner_pred = coordinates.xyzrot_to_corners(
