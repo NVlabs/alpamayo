@@ -37,7 +37,7 @@ class PhysicalAIAVDatasetLocalInterface:
     def __init__(
         self,
         local_dir: str | pathlib.Path,
-        chunk_ids: list[int] | None = None,
+        chunk_ids: list[int] | tuple[int, ...] | int | str | None = None,
         features_metadata: str = "features.csv",
         clip_index_metadata: str = "clip_index.parquet",
         start_safe_margin_seconds: float = 1.6,
@@ -47,8 +47,15 @@ class PhysicalAIAVDatasetLocalInterface:
 
         Args:
             local_dir: Path to the local directory containing the PAI dataset.
-            chunk_ids: List of chunk IDs to load, or a range string (e.g. "0-9").
-                      If None, all available chunks will be loaded.
+            chunk_ids: Which chunks to load. Accepted forms:
+
+                - ``None``: load all available chunks.
+                - ``int``: a single chunk id, e.g. ``3``.
+                - ``list[int]`` / ``tuple[int, ...]`` / any other iterable of ints.
+                - ``str`` of the form ``"<start>-<end>"`` with **exclusive end**,
+                  e.g. ``"0-10"`` selects chunks ``0..9``. This matches the
+                  ``--chunk-ids`` semantics in ``scripts/download_pai.py`` and
+                  ``--chunk`` in ``scripts/curate_pai_samples.py``.
         """
         self.local_dir = local_dir
         self.chunk_ids = None
