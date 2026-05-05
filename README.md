@@ -191,6 +191,21 @@ alpamayo/
 
 ## Troubleshooting
 
+### First step: run the install smoke test
+
+Before opening an install issue, run:
+
+```bash
+python -m alpamayo_r1.healthcheck
+```
+
+It prints a one-line PASS / FAIL / SKIP for each of the eight common
+install pitfalls (Python version, torch + CUDA, `transformers` pin,
+`flash-attn`, `physical_ai_av`, HuggingFace auth, package import) along
+with the exact command needed to fix each failure. Paste the full
+output into your issue so reviewers don't have to ask follow-ups.
+Add `--quiet` to print only failures.
+
 ### Flash Attention issues
 
 The model uses Flash Attention 2 by default. If you encounter compatibility issues:
