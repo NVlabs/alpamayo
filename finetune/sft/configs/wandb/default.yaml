@@ -1,6 +1,0 @@
-key: null
-team: ???
-project: ???
-group: ${run_name}
-name: ${run_name}
-output_dir: ${paths.output_dir}

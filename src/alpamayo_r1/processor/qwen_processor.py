@@ -21,9 +21,9 @@ from typing import Any, Callable
 import torch
 from transformers import AutoProcessor
 
+from alpamayo.chat_template import get_template
 from alpamayo_r1.models.base_model import SPECIAL_TOKENS, TRAJ_TOKEN
-from alpamayo_r1.chat_template.conversation import build_conversation
-from alpamayo_r1.utils.get_label_mask import get_label_mask, get_role_eos_mask
+from alpamayo.utils.get_label_mask import get_label_mask, get_role_eos_mask
 
 
 def sort_images_by_camera_ids(
@@ -92,6 +92,7 @@ class QwenProcessor:
         max_pixels: int | None = None,
         include_camera_ids: bool = False,
         include_frame_nums: bool = False,
+        chat_template_version: str = "r1",
     ) -> None:
         """Initialize the processor.
 
@@ -101,6 +102,8 @@ class QwenProcessor:
             min_pixels: Minimum number of pixels for image resizing.
             max_pixels: Maximum number of pixels for image resizing.
             include_camera_ids: Whether to include camera IDs as text before images.
+            chat_template_version: Alpamayo R1 family version to use for the
+                chat template (e.g. ``"r1"``, ``"r1_5"``).
         """
         self.vlm_name_or_path = vlm_name_or_path
         self.traj_vocab_size = traj_vocab_size
@@ -109,6 +112,7 @@ class QwenProcessor:
         self._max_pixels = max_pixels
         self.include_camera_ids = include_camera_ids
         self.include_frame_nums = include_frame_nums
+        self._chat_template = get_template(chat_template_version)
 
     def build_processor(self) -> AutoProcessor:
         """Build the Qwen processor."""
@@ -250,7 +254,7 @@ class QwenProcessor:
         data["generation_mode"] = generation_mode
 
         # 2. build the chat template
-        messages = build_conversation(
+        messages = self._chat_template.build_conversation(
             data=data,
             num_tokens_per_history_traj=num_tokens_per_history_traj,
             num_tokens_per_future_traj=num_tokens_per_future_traj,
@@ -312,6 +316,7 @@ def build_processor(
     max_pixels: int | None = None,
     include_camera_ids: bool = False,
     include_frame_nums: bool = False,
+    chat_template_version: str = "r1",
 ) -> AutoProcessor:
     """Build the processor for the Qwen VLM."""
     qwen_proc = QwenProcessor(
@@ -321,6 +326,7 @@ def build_processor(
         max_pixels=max_pixels,
         include_camera_ids=include_camera_ids,
         include_frame_nums=include_frame_nums,
+        chat_template_version=chat_template_version,
     )
     return qwen_proc.build_processor()
 
@@ -333,6 +339,7 @@ def get_preprocess_data_fn_from_model_config(
     include_camera_ids: bool = False,
     include_frame_nums: bool = False,
     model_config: Any = None,
+    chat_template_version: str = "r1",
     **kwargs: Any,
 ) -> Callable[..., Any]:
     """Get the preprocess data function for the Qwen VLM model."""
@@ -343,6 +350,7 @@ def get_preprocess_data_fn_from_model_config(
         max_pixels=model_config.max_pixels,
         include_camera_ids=include_camera_ids,
         include_frame_nums=include_frame_nums,
+        chat_template_version=chat_template_version,
     )
     return qwen_proc.get_preprocess_data_fn(
         num_tokens_per_history_traj=model_config.tokens_per_history_traj,
@@ -361,6 +369,7 @@ def collate_fn_from_model_config(
     padding_side: str = "left",
     include_camera_ids: bool = False,
     include_frame_nums: bool = False,
+    chat_template_version: str = "r1",
 ) -> dict[str, Any]:
     """Wrapper for the origin collate_fn to instantiate from the model config."""
     qwen_proc = QwenProcessor(
@@ -370,5 +379,6 @@ def collate_fn_from_model_config(
         max_pixels=model_config.max_pixels,
         include_camera_ids=include_camera_ids,
         include_frame_nums=include_frame_nums,
+        chat_template_version=chat_template_version,
     )
     return qwen_proc.collate_fn(data, padding_side=padding_side)

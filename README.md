@@ -12,7 +12,7 @@
 
 ## Updates
 
-- [April 2026] ⚙️ [Fine-tuning scripts](#fine-tuning-scripts) released: [SFT](docs/FINETUNE_SFT.md) for supervised fine-tuning and [RL](finetune/rl/README.md) for reinforcement learning-based post-training.
+- [April 2026] ⚙️ [Fine-tuning scripts](#fine-tuning-scripts) released: [SFT]() for supervised fine-tuning and [RL]() for reinforcement learning-based post-training.
 - [March 2026] [🏔️ Alpamayo 1.5](https://github.com/NVlabs/alpamayo1.5) has been released! We recommend all users check out the new version for improved performance, new features, and continued support! 🚀
 - [January 2026] Following the release of [NVIDIA Alpamayo](https://nvidianews.nvidia.com/news/alpamayo-autonomous-vehicle-development) at CES 2026, Alpamayo-R1 has been renamed to Alpamayo 1.
 
@@ -102,17 +102,7 @@ Alpamayo 1 implements the architecture described in our paper [*"Alpamayo-R1: Br
 | **Route/navigation conditioning**       | Explicit navigation or route inputs                              | ❌ Not in this release |
 | **Meta-actions/General VQA**            | High-level behavior and visual question answering                | ❌ Not in this release |
 
-This release includes the core model, SFT scripts, and the RL post-training pipeline. RL-trained weights, route conditioning, and meta-actions are candidates for future releases.
-
-## Fine-tuning Scripts
-
-| Method  | Description                                              | Docs                              |
-| ------- | -------------------------------------------------------- | --------------------------------- |
-| **SFT** | Supervised fine-tuning                                   | [SFT guide](docs/FINETUNE_SFT.md) |
-| **RL**  | Reinforcement learning-based post-training via Cosmos-RL | [RL guide](finetune/rl/README.md) |
-
-Please refer to the linked guides for compute requirements, step-by-step
-instructions, and fine-tuning FAQ.
+This release includes the core model, and the inference scripts. For SFT scripts, RL post-training pipeline, distillation recipes, etc. please refer ro [Alpamayo-recipes]().
 
 ## Frequently Asked Questions (FAQ)
 
@@ -155,32 +145,24 @@ No. The model weights are released under a **non-commercial license**. This rele
 
 ```
 alpamayo/
-├── finetune/
-│   ├── rl/                              # RL post-training
-│   │   ├── models/                      # Model wrappers & Cosmos-RL entry scripts
-│   │   ├── rewards/                     # Reward functions
-│   │   ├── prefetch/                    # Shared-memory data prefetch server
-│   │   ├── toml/                        # Cosmos-RL training configs
-│   │   ├── hydra_configs/               # Dataset & preprocessing configs
-│   │   └── README.md                    # RL post-training guide
-│   └── sft/                             # Supervised fine-tuning
-│       ├── configs/                     # Model configs
-│       ├── models/                      # Trainable wrappers
-│       ├── train_hf.py                  # Training script
-│       └── evaluate_hf.py               # Evaluation script
 ├── notebook/
 │   └── inference.ipynb                  # Example notebook
 ├── src/
 │   └── alpamayo_r1/
 │       ├── action_space/
 │       │   └── ...                      # Action space definitions
+|       ├── chat_template/
+│       │   └── ...                      # Chat template for the model
+│       ├── common/
+│       │   └── ...                      # logging utilities
 │       ├── diffusion/
 │       │   └── ...                      # Diffusion model components
 │       ├── geometry/
 │       │   └── ...                      # Geometry utilities and modules
 │       ├── models/
 │       │   ├── ...                      # Model components and utils functions
-│       ├── __init__.py                  # Package marker
+│       ├── processor/
+│       │   └── ...                      # model tokenizers
 │       ├── config.py                    # Model and experiment configuration
 │       ├── helper.py                    # Utility functions
 │       ├── load_physical_aiavdataset.py # Dataset loader

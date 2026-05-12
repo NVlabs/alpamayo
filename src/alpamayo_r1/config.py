@@ -34,6 +34,8 @@ class AlpamayoR1Config(ReasoningVLAConfig):
         expert_cfg: dict[str, Any] | None = None,
         keep_same_dtype: bool = True,
         expert_non_causal_attention: bool = True,
+        include_camera_ids: bool = False,
+        include_frame_nums: bool = False,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -44,3 +46,5 @@ class AlpamayoR1Config(ReasoningVLAConfig):
         self.expert_cfg = expert_cfg
         self.keep_same_dtype = keep_same_dtype
         self.expert_non_causal_attention = expert_non_causal_attention
+        self.include_camera_ids = include_camera_ids
+        self.include_frame_nums = include_frame_nums
