@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 0 Progress • Alpamayo MLX Port</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', system_ui, sans-serif; font-weight: 600; }
+        .metric-card { transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        .metric-card:hover { transform: translateY(-1px); }
+        pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-5xl mx-auto px-6 py-10">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-x-4">
+                <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-tools text-white text-3xl"></i>
+                </div>
+                <div>
+                    <div class="font-display text-4xl font-semibold tracking-tight">Stage 0</div>
+                    <div class="text-amber-400 text-sm font-medium">Environment Setup Complete</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-3">
+                <div class="px-4 py-1.5 bg-emerald-900/40 border border-emerald-700 rounded-3xl text-emerald-400 text-sm flex items-center gap-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span class="font-semibold">COMPLETED</span>
+                </div>
+                <div class="px-3 py-1 bg-amber-900/30 border border-amber-700 rounded-3xl text-amber-400 text-xs flex items-center gap-x-1.5">
+                    <i class="fa-solid fa-sync fa-xs"></i>
+                    <span>Updated</span>
+                </div>
+                <div class="text-xs text-slate-500">May 11, 2026 • M4 Pro Max</div>
+            </div>
+        </div>
+
+        <!-- Summary Banner -->
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">Python Version</div>
+                    <div class="text-3xl font-semibold text-white">3.12.13</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">Virtual Environment</div>
+                    <div class="font-mono text-xl text-cyan-400">.venv</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">Total Disk Footprint</div>
+                    <div class="text-3xl font-semibold text-emerald-400">618 MiB</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">MLX Device</div>
+                    <div class="inline-flex items-center gap-x-2 px-3 py-1 bg-emerald-950 border border-emerald-800 rounded-2xl">
+                        <i class="fa-solid fa-microchip text-emerald-400"></i>
+                        <span class="font-semibold text-emerald-400">GPU (Apple Silicon)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Venv Setup -->
+        <div class="mb-8">
+            <div class="flex items-center gap-x-3 mb-4">
+                <i class="fa-solid fa-folder text-amber-400"></i>
+                <div class="font-semibold text-xl">Virtual Environment Setup</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 text-sm">
+                <div class="font-mono bg-slate-950 border border-slate-800 rounded-2xl p-4 text-cyan-400">
+                    python3.12 -m venv .venv<br>
+                    source .venv/bin/activate<br>
+                    pip install --upgrade pip
+                </div>
+                <div class="mt-4 text-slate-400 text-xs">Created fresh Python 3.12.13 virtual environment isolated from system and uv-managed project dependencies.</div>
+            </div>
+        </div>
+
+        <!-- Installed Packages -->
+        <div class="mb-8">
+            <div class="flex items-center gap-x-3 mb-4">
+                <i class="fa-solid fa-box text-amber-400"></i>
+                <div class="font-semibold text-xl">Installed Packages</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-950 border-b border-slate-700">
+                        <tr>
+                            <th class="text-left px-6 py-4 font-medium text-slate-400">Package</th>
+                            <th class="text-left px-6 py-4 font-medium text-slate-400">Version</th>
+                            <th class="text-left px-6 py-4 font-medium text-slate-400">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">mlx</td><td class="px-6 py-4">0.31.2</td><td class="px-6 py-4 text-slate-400">Core MLX framework (Apple Silicon GPU/ANE)</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">mlx-lm</td><td class="px-6 py-4">0.31.3</td><td class="px-6 py-4 text-slate-400">MLX language model utilities &amp; loaders</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">mlx-vlm</td><td class="px-6 py-4">0.5.0</td><td class="px-6 py-4 text-slate-400">MLX vision-language model support (Qwen-VL, image encoders, multimodal)</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">safetensors</td><td class="px-6 py-4">0.7.0</td><td class="px-6 py-4 text-slate-400">Safe tensor serialization (Hugging Face standard)</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">pillow</td><td class="px-6 py-4">12.2.0</td><td class="px-6 py-4 text-slate-400">Image processing (PIL)</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">opencv-python</td><td class="px-6 py-4">4.13.0.92</td><td class="px-6 py-4 text-slate-400">Computer vision (cv2)</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">omegaconf</td><td class="px-6 py-4">2.3.0</td><td class="px-6 py-4 text-slate-400">YAML/Hydra config management</td></tr>
+                        <tr><td class="px-6 py-4 font-mono text-cyan-400">wandb</td><td class="px-6 py-4">0.26.1</td><td class="px-6 py-4 text-slate-400">Experiment tracking &amp; logging</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-xs text-slate-500 mt-2 px-1">Transitive dependencies installed: numpy 2.4.4, transformers 5.8.0, tokenizers, huggingface-hub, datasets, etc. (mlx-vlm added post-initial setup for VLM support).</div>
+        </div>
+
+        <!-- Verification Output -->
+        <div class="mb-8">
+            <div class="flex items-center gap-x-3 mb-4">
+                <i class="fa-solid fa-check-double text-emerald-400"></i>
+                <div class="font-semibold text-xl">Verification Output</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-700 rounded-3xl p-6 font-mono text-sm">
+<pre class="text-emerald-400">MLX core version: 0.31.2
+MLX-LM version: 0.31.3
+mlx-vlm version: 0.5.0
+MLX default device: Device(gpu, 0)
+Simple op result: [5, 7, 9]
+MLX verification successful on Apple Silicon!
+All supporting packages (including mlx-vlm) importable.</pre>
+            </div>
+            <div class="mt-3 text-xs text-emerald-400 flex items-center gap-x-2">
+                <i class="fa-solid fa-check-circle"></i>
+                <span>MLX + mlx-vlm successfully initialized on GPU. VLM loading (Qwen-VL etc.) now supported for Stage 1.</span>
+            </div>
+        </div>
+
+        <!-- Footprint -->
+        <div class="mb-8">
+            <div class="flex items-center gap-x-3 mb-4">
+                <i class="fa-solid fa-chart-bar text-amber-400"></i>
+                <div class="font-semibold text-xl">Environment Footprint</div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="metric-card bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                    <div class="text-xs text-slate-500">Total .venv Size</div>
+                    <div class="text-5xl font-semibold text-white mt-2">618 <span class="text-2xl text-slate-400">MiB</span></div>
+                </div>
+                <div class="metric-card bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                    <div class="text-xs text-slate-500">Largest Package</div>
+                    <div class="flex items-baseline gap-x-3 mt-2">
+                        <div class="text-5xl font-semibold text-white">178</div>
+                        <div>
+                            <div class="text-emerald-400 font-semibold">MiB</div>
+                            <div class="text-sm text-slate-400">mlx (core + metal)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-card bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                    <div class="text-xs text-slate-500">Top Consumers</div>
+                    <div class="mt-3 space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-slate-400">mlx</span><span class="font-mono text-cyan-400">178 MiB</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">cv2</span><span class="font-mono text-cyan-400">119 MiB</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">transformers</span><span class="font-mono text-cyan-400">96 MiB</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">wandb</span><span class="font-mono text-cyan-400">83 MiB</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-indigo-950/50 border border-indigo-800 rounded-3xl p-8">
+            <div class="font-semibold text-indigo-400 mb-3 flex items-center gap-x-2">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>Ready for Stage 1</span>
+            </div>
+            <div class="text-sm text-slate-300">Environment is fully prepared (including <span class="font-mono text-indigo-300">mlx-vlm</span> for VLM support). Next: Port pre-trained Alpamayo-R1-10B model to MLX, implement inference pipeline, and validate on PAI-COC dataset (minADE + visualizations).</div>
+            <div class="mt-4 text-xs font-mono text-indigo-400">Report saved to: reports/stage0_progress.html</div>
+        </div>
+    </div>
+</body>
+</html>
