@@ -12,7 +12,8 @@
 
 ## Updates
 
-- [April 2026] ⚙️ Fine-tuning scripts released in [Alpamayo Recipes](https://github.com/NVlabs/alpamayo-recipes): [SFT](https://github.com/NVlabs/alpamayo-recipes/tree/main/recipes/alpamayo1_sft) for supervised fine-tuning and [RL](https://github.com/NVlabs/alpamayo-recipes/tree/main/recipes/alpamayo1_x_rl) for reinforcement learning-based post-training.
+- [May 2026] Fine-tuning and post-training scripts moved to [Alpamayo Recipes](https://github.com/NVlabs/alpamayo-recipes): [SFT](https://github.com/NVlabs/alpamayo-recipes/tree/main/recipes/alpamayo1_sft) and [RL](https://github.com/NVlabs/alpamayo-recipes/tree/main/recipes/alpamayo1_x_rl).
+- [April 2026] ⚙️ [Fine-tuning scripts](#fine-tuning-scripts) released: [SFT](docs/FINETUNE_SFT.md) for supervised fine-tuning and [RL](finetune/rl/README.md) for reinforcement learning-based post-training.
 - [March 2026] [🏔️ Alpamayo 1.5](https://github.com/NVlabs/alpamayo1.5) has been released! We recommend all users check out the new version for improved performance, new features, and continued support! 🚀
 - [January 2026] Following the release of [NVIDIA Alpamayo](https://nvidianews.nvidia.com/news/alpamayo-autonomous-vehicle-development) at CES 2026, Alpamayo-R1 has been renamed to Alpamayo 1.
 
