@@ -117,9 +117,6 @@ class PAIDataset(Dataset):
             if key.startswith("ego_"):
                 sample_data[key] = sample_data[key].squeeze(0)
 
-        if self.vla_preprocess_func is not None:
-            sample_data["tokenized_data"] = self.vla_preprocess_func(data=sample_data)
-
         if self.include_extr_intr:
             sample_data["extr"] = self.avdi.get_clip_feature(clip_id, "sensor_extrinsics")
             sample_data["intr"] = self.avdi.get_clip_feature(clip_id, "camera_intrinsics")
