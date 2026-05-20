@@ -80,6 +80,37 @@ def get_processor(tokenizer: AutoTokenizer) -> AutoProcessor:
     return processor
 
 
+def tokenize_messages(
+    processor: AutoProcessor,
+    messages: list[dict],
+    **kwargs,
+) -> dict:
+    """Tokenize messages containing images and text.
+
+    This is the ground-truth tokenization path used by NVIDIA's Alpamayo implementation
+    (see src/alpamayo_r1/test_inference.py). It calls `processor.apply_chat_template`
+    with the exact parameters required for correct multi-image, multi-frame handling
+    and trajectory token insertion.
+
+    Args:
+        processor: Qwen3-VL processor returned by `get_processor`.
+        messages: List of chat messages produced by `create_message`.
+        **kwargs: Additional arguments forwarded to `apply_chat_template`.
+
+    Returns:
+        Dict containing `input_ids`, `attention_mask`, `pixel_values`, `image_grid_thw`, etc.
+    """
+    default_kwargs = {
+        "tokenize": True,
+        "add_generation_prompt": False,
+        "continue_final_message": True,
+        "return_dict": True,
+        "return_tensors": "pt",
+    }
+    default_kwargs.update(kwargs)
+    return processor.apply_chat_template(messages, **default_kwargs)
+
+
 def to_device(
     data: Any,
     device: str | torch.device | None = None,

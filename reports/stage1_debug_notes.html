@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 1 Debug Notes - Alpamayo MLX Port</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; line-height: 1.7; max-width: 980px; margin: 40px auto; padding: 0 24px; background: #0f172a; color: #e2e8f0; }
+        h1, h2, h3 { font-family: 'Space Grotesk', system_ui, sans-serif; color: #f1f5f9; }
+        h1 { font-size: 2.25rem; border-bottom: 1px solid #334155; padding-bottom: 12px; }
+        h2 { font-size: 1.5rem; margin-top: 3rem; }
+        pre, code { background: #1e2937; padding: 2px 8px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.875rem; }
+        pre { padding: 16px; overflow-x: auto; }
+        .section { margin-bottom: 3.5rem; }
+        .note { background: #1e2937; border-left: 4px solid #64748b; padding: 16px 20px; margin: 24px 0; }
+    </style>
+</head>
+<body>
+    <h1>Stage 1 Debug Notes &amp; Historical Patch Work</h1>
+    <p><strong>Alpamayo-R1-10B MLX Port — Historical Record (2026-05-15 to 2026-05-16)</strong></p>
+    <p>This document preserves the detailed debugging history, patch attempts on <code>mlx_vlm/generate.py</code>, and first-principles GPU analysis from the high-level API phase. The project has since moved to a clean manual generation loop in <code>inference.py</code>.</p>
+
+    <div class="section">
+        <h2>Patch Tracking History (Obsolete)</h2>
+        <div class="note">
+            <strong>Note:</strong> All content below documents work that has been superseded. The current recommended approach is the manual VLM loop with explicit <code>mx.eval</code> placement.
+        </div>
+
+        <h3>Patch Tracking (Recommended Workflow) — Historical</h3>
+        <p><strong>Approach:</strong> Patch-file + apply script (no full fork of mlx-vlm)</p>
+        <p><strong>Files created:</strong></p>
+        <ul>
+            <li><code>patches/mlx_vlm_generate.patch</code> — unified diff that adds <code>logits_processors</code> / <code>stopping_criteria</code> handling and exposes <code>prompt_cache</code> on <code>GenerationResult</code>.</li>
+            <li><code>scripts/apply_mlx_vlm_patches.sh</code> — locates the installed <code>mlx_vlm</code> package and applies the patch (safe to re-run).</li>
+        </ul>
+
+        <h3>Status (2026-05-15, evening update)</h3>
+        <ul>
+            <li><code>Qwen3-VL-2B-Instruct-4bit</code> downloaded to <code>pre-trained/Qwen3-VL-2B-Instruct-4bit</code>.</li>
+            <li>Integration test <code>test_logits_processors_honored_with_real_model</code> added.</li>
+            <li>8/8 tests in <code>test_mlx_vlm_patch.py</code> pass.</li>
+        </ul>
+
+        <h3>Investigation of mlx_vlm cache handling (2026-05-16)</h3>
+        <p>The GPU Address Fault was traced to a race between the caller’s <code>mx.eval(generated)</code> and the internal RoPE/KV cache state managed inside <code>mlx_vlm/generate.py:generate_step</code>.</p>
+
+        <h3>First-principles triage of GPU Hang (00000003:kIOGPUCommandBufferCallbackErrorHang)</h3>
+        <p><strong>Symptom:</strong> Hang occurs on the very first autoregressive step after a 32 k-token vision prefill.</p>
+        <p><strong>Root cause:</strong> A single <code>model.language_model(...)</code> call with 32 k context generates a Metal command buffer containing thousands of kernel dispatches that exceeds the driver’s internal timeout.</p>
+        <p><strong>Architectural mismatch:</strong> <code>mlx_vlm.generate</code> was designed for typical VLM prompts (hundreds to low thousands of tokens). Alpamayo’s CoC prompts routinely exceed 32 k tokens with heavy vision augmentation.</p>
+    </div>
+
+    <p><em>End of archived historical notes. Current implementation uses the manual loop in <code>mlx_port/inference.py</code>.</em></p>
+
+    <div class="section">
+        <h2>Failure Cases &amp; Debugging Notes (Moved from main progress report)</h2>
+        <div class="note">
+            <strong>1. Analytical combined motion (expected):</strong> <span class="font-mono">traj_to_action</span> recovers mixed (accel + kappa) profile with mean error ~0.07–0.19. Documents current numerical limitation of heading-projection + regularized solver.<br>
+            <strong>2. End-to-end inference (new bug):</strong> <span class="font-mono">traj_to_action</span> returns Python list from <span class="font-mono">solve_xs_eq_y</span> when called with real dataset shapes inside tokenizer. Blocks history tokenization. CoC generation path still functional.<br>
+            <strong>3. mlx_vlm Qwen3-VL processor nested-list bug (2026-05-18, detailed debug trace)</strong>: When forcing the strict NVIDIA-style single call <code>processor.apply_chat_template(messages, tokenize=True, return_dict=True)</code>, the <code>mlx_vlm</code> processor receives a nested list <code>[[pil0, …, pil15]]</code> instead of a flat list of 16 images. This causes <code>Qwen3VLImageProcessor.__call__</code> to produce a <code>(16, 1080, 1920, 3)</code> array that reaches <code>_process_one</code>, which expects a 3-D image and raises <code>ValueError: too many values to unpack (expected 3)</code>. Debug prints were temporarily inserted in <code>mlx_vlm/models/qwen3_vl/processing_qwen3_vl.py</code> (in <code>Qwen3VLProcessor.__call__</code> and <code>Qwen3VLImageProcessor.__call__</code>) to capture the exact data flow. The prints showed:<br>
+            <code>[MLX_VLM_DEBUG] Qwen3VLProcessor.__call__ passing to image_processor: type=list, len=1</code><br>
+            <code>[MLX_VLM_DEBUG] Qwen3VLImageProcessor.__call__ received: type=list, len=1; First element type: list</code><br>
+            <code>[MLX_VLM_DEBUG] After conversion: 1 items, shapes=[(16,1080,1920,3)]</code><br>
+            <code>[MLX_VLM_DEBUG] Calling _process_one on shape (16,1080,1920,3)</code><br>
+            This explains why the fallback split path (tokenize=False + explicit images) silently produced the incorrect <code>image_grid_thw</code> with every row <code>[1,68,120]</code> (T=1). The root cause is an assumption in the <code>mlx_vlm</code> port that the images list passed from <code>apply_chat_template</code> is always flat. These debug prints (currently left in the installed <code>mlx_vlm</code> package) can be re-enabled for future diagnosis.
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>VLM Generation: Manual Loop (Clean Environment) – Historical Record</h2>
+        <div class="note">
+            <strong>Status (2026-05-16)</strong>: Reverted to pristine <code>mlx-vlm==0.5.0</code> (no patches). All previous patch work on <code>mlx_vlm/generate.py</code> has been discarded.<br><br>
+            <strong>Current Implementation</strong>: Full manual VLM generation loop in <code>inference.py</code> (<code>_run_single_vlm_generation</code>).<br>
+            • One prefill call with full prompt + vision features.<br>
+            • Decode loop applies <code>ExpertLogitsProcessor</code> and <code>StopAfterEOS</code> on every step.<br>
+            • <code>mx.eval(outputs.logits)</code> immediately after prefill (forces KV cache materialization).<br>
+            • <code>mx.eval(next_token)</code> on the first decode token only (prevents lazy-graph hang).<br>
+            • Cache object reused on every continuation call (no KV recomputation).<br><br>
+            <strong>Why manual loop</strong>: The high-level <code>mlx_vlm.generate</code> API could not be made safe for Alpamayo’s 32 k-token vision-augmented CoC prompts without repeated Metal timeouts or page faults. The manual loop gives explicit control over synchronization points while preserving exact NVIDIA parity for processors and stopping criteria.<br><br>
+            <strong>Result (2026-05-16)</strong>: 2-step test (<code>max_gen_len=2</code>) passed cleanly after fixing tokenizer vocabulary parity with NVIDIA.<br>
+            • <code>AlpamayoR1MLX.from_pretrained</code> now calls <code>tokenizer.add_tokens</code> for any missing <code>&lt;iN&gt;</code> tokens (3232 added in this run, bringing total to 155 697).<br>
+            • <code>ExpertLogitsProcessor</code> receives correct offset (151 669) and vocab size (4000) from the now-complete tokenizer.<br>
+            • Masking range <code>[151669, 155669)</code> is valid; no logits corruption.<br>
+            • Memory stable (~18.3 GB Metal / 23.4 GB RSS). VLM generation ~79 s. No GPU hang, page fault, or Metal timeout.<br>
+            • Rows 13–16 in the parity table are now marked ✅ Done (strict NVIDIA parity for <code>ExpertLogitsProcessor</code> + <code>StopAfterEOS</code> + full trajectory token vocabulary).<br><br>
+            <strong>VLM Weight Loading (2026-05-18)</strong>: Completely rewrote <code>AlpamayoR1MLX._load_vlm_weights</code> with robust key remapping and list-index navigation. Now loads <strong>750 / 750</strong> VLM tensors directly from the Alpamayo safetensors, including the language modeling head (<code>lm_head</code>). This achieves full parity with the NVIDIA loading path (HF <code>from_pretrained</code> + <code>base_model_prefix="vlm"</code>). The fine-tuned Alpamayo CoC + vision weights are now active.<br><br>
+            <strong>Preprocessing Alignment with NVIDIA + Strict image_grid_thw Check (2026-05-18)</strong>: Updated the end-to-end test and inference path to call <code>processor.apply_chat_template(..., tokenize=True, return_dict=True)</code> exactly as in <code>src/alpamayo_r1/test_inference.py</code>. Added a strict runtime check in <code>_run_single_vlm_generation</code>: if <code>image_grid_thw</code> is missing, the code raises <code>RuntimeError</code> with a clear message instead of silently continuing. This enforces that the Qwen3-VL processor must produce the correct multi-view / multi-frame / deepstack metadata required by the fine-tuned Alpamayo vision tower. Combined with 750/750 VLM weight loading and channel normalization, the MLX pipeline now matches the NVIDIA inference preprocessing contract with fail-fast semantics.<br><br>
+            <strong>2-step Inference Run (2026-05-18, current)</strong>: First full-parity 2-step test after all VLM + tokenizer + preprocessing fixes. Reached VLM prefill with 32 766 tokens, correct <code>image_grid_thw</code>, and verified <code>ExpertLogitsProcessor</code>. Blocked only on final Conv3D input layout. All prior GPU-stability and correctness issues resolved.<br><br>
+            <strong>Deep Debug Prints Added (2026-05-18)</strong>: Inserted verbose logging in <code>sample_trajectories_from_data_with_vlm_rollout</code> (right after <code>image_kwargs</code> construction) and inside <code>_run_single_vlm_generation</code> (immediately before the VLM prefill call). These prints now emit the exact keys, shapes, and dtypes of every vision tensor that reaches the model, making the <code>(130560,1536)</code> → <code>(130560,2,16,16,3)</code> transformation fully traceable on the next run.
+        </div>
+    </div>
+</body>
+</html>
