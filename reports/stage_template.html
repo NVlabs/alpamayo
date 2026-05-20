@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage X Progress • Alpamayo MLX Port</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', system_ui, sans-serif; font-weight: 600; }
+        .metric-card { transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        .metric-card:hover { transform: translateY(-1px); }
+        pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        .section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-5xl mx-auto px-6 py-10">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-x-4">
+                <div class="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-tools text-white text-3xl"></i>
+                </div>
+                <div>
+                    <div class="font-display text-4xl font-semibold tracking-tight">Stage <span class="stage-number">X</span></div>
+                    <div class="text-amber-400 text-sm font-medium">In Progress</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-3">
+                <div class="px-4 py-1.5 bg-amber-900/40 border border-amber-700 rounded-3xl text-amber-400 text-sm flex items-center gap-x-2">
+                    <i class="fa-solid fa-clock"></i>
+                    <span class="font-semibold">IN PROGRESS</span>
+                </div>
+                <div class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-3xl text-slate-400 text-xs flex items-center gap-x-1.5">
+                    <i class="fa-solid fa-sync fa-xs"></i>
+                    <span>Updated</span>
+                </div>
+                <div class="text-xs text-slate-500">May 13, 2026 • M4 Pro Max</div>
+            </div>
+        </div>
+
+        <!-- Summary Banner -->
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">Stage Status</div>
+                    <div class="text-3xl font-semibold text-white">In Progress</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">Key Focus</div>
+                    <div class="font-semibold text-xl text-cyan-400">[Main focus of this stage]</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">Files Changed</div>
+                    <div class="text-3xl font-semibold text-emerald-400">[X]</div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-[1.5px] text-slate-500 mb-1">MLX Device</div>
+                    <div class="inline-flex items-center gap-x-2 px-3 py-1 bg-emerald-950 border border-emerald-800 rounded-2xl">
+                        <i class="fa-solid fa-microchip text-emerald-400"></i>
+                        <span class="font-semibold text-emerald-400">GPU (Apple Silicon)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Design & Decisions -->
+        <div class="mb-8">
+            <div class="section-header">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                <div class="font-semibold text-xl">Design &amp; Decisions</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <div class="font-semibold text-slate-300 mb-1">Key Design Choices</div>
+                        <div class="text-slate-400 placeholder">[Describe the main architectural or implementation decisions made in this stage]</div>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-slate-300 mb-1">Rationale</div>
+                        <div class="text-slate-400 placeholder">[Explain why these approaches were chosen]</div>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-slate-300 mb-1">Trade-offs Considered</div>
+                        <div class="text-slate-400 placeholder">[List alternatives considered and why they were rejected]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Changes -->
+        <div class="mb-8">
+            <div class="section-header">
+                <i class="fa-solid fa-code text-amber-400"></i>
+                <div class="font-semibold text-xl">Code Changes</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                <div class="mb-4">
+                    <div class="font-semibold text-slate-300 mb-2">Files Modified / Added</div>
+                    <div class="text-sm text-slate-400 placeholder">
+                        • alpamayo/path/to/file.py<br>
+                        • reports/stageX_progress.html
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="font-semibold text-slate-300 mb-2">Key Implementation Details</div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-cyan-400">
+                        <pre class="placeholder">// Paste important code snippets, diffs, or implementation details here</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="mb-8">
+            <div class="section-header">
+                <i class="fa-solid fa-vial text-emerald-400"></i>
+                <div class="font-semibold text-xl">Test Results</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                <!-- Quantitative Metrics -->
+                <div class="mb-6">
+                    <div class="font-semibold text-slate-300 mb-3">Quantitative Metrics</div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="px-4 py-2 bg-slate-950 border border-slate-700 rounded-2xl text-sm">
+                            <span class="text-slate-400">Loss:</span> <span class="font-semibold text-white placeholder">[value]</span>
+                        </div>
+                        <div class="px-4 py-2 bg-slate-950 border border-slate-700 rounded-2xl text-sm">
+                            <span class="text-slate-400">minADE:</span> <span class="font-semibold text-white placeholder">[value]</span>
+                        </div>
+                        <div class="px-4 py-2 bg-slate-950 border border-slate-700 rounded-2xl text-sm">
+                            <span class="text-slate-400">Accuracy:</span> <span class="font-semibold text-white placeholder">[value]%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Outputs from Alpamayo -->
+                <div class="mb-6">
+                    <div class="font-semibold text-slate-300 mb-2">Critical Outputs from Alpamayo</div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm font-medium text-slate-400 mb-1">CoC Reasoning Text</div>
+                            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-slate-300 placeholder">
+                                [Paste actual CoC reasoning text generated by Alpamayo here]
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-slate-400 mb-1">Trajectory Data / Plots</div>
+                            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-slate-300 placeholder">
+                                [Include trajectory coordinates, plot descriptions, or base64 images]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Failure Cases -->
+                <div>
+                    <div class="font-semibold text-slate-300 mb-2">Failure Cases &amp; Debugging Notes</div>
+                    <div class="text-sm text-slate-400 placeholder">
+                        [Describe any issues encountered, debugging steps, and resolutions]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compute Footprint -->
+        <div class="mb-8">
+            <div class="section-header">
+                <i class="fa-solid fa-microchip text-amber-400"></i>
+                <div class="font-semibold text-xl">Compute Footprint</div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="metric-card bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                    <div class="text-xs text-slate-500">Peak Memory Usage</div>
+                    <div class="text-4xl font-semibold text-white mt-2 placeholder">[X.X] <span class="text-2xl text-slate-400">GiB</span></div>
+                </div>
+                <div class="metric-card bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                    <div class="text-xs text-slate-500">Time per Epoch / Inference</div>
+                    <div class="text-4xl font-semibold text-white mt-2 placeholder">[XX min XX sec]</div>
+                </div>
+                <div class="metric-card bg-slate-900 border border-slate-700 rounded-3xl p-6">
+                    <div class="text-xs text-slate-500">Power / Thermal Observations</div>
+                    <div class="text-sm text-slate-400 mt-3 placeholder">[Any power consumption or thermal notes]</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-indigo-950/50 border border-indigo-800 rounded-3xl p-8">
+            <div class="font-semibold text-indigo-400 mb-3 flex items-center gap-x-2">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>Next Steps</span>
+            </div>
+            <div class="text-sm text-slate-300 placeholder">
+                [Describe what should be done in the next stage or remaining tasks for this stage]
+            </div>
+            <div class="mt-4 text-xs font-mono text-indigo-400">Report saved to: reports/stageX_progress.html</div>
+        </div>
+    </div>
+</body>
+</html>

@@ -217,3 +217,5 @@ __marimo__/
 
 # pre-trained model weights
 pre-trained/
+.DS_Store
+.cursor/

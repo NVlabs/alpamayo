@@ -28,6 +28,7 @@ def load_physical_aiavdataset(
     clip_id: str,
     t0_us: int = 5_100_000,
     avdi: physical_ai_av.PhysicalAIAVDatasetInterface | None = None,
+    local_dir: str | None = None,
     maybe_stream: bool = True,
     num_history_steps: int = 16,
     num_future_steps: int = 64,
@@ -45,7 +46,10 @@ def load_physical_aiavdataset(
         t0_us: The timestamp (in microseconds) at which to sample the trajectory.
             If None, uses a timestamp 5.1s seconds into the clip.
         avdi: Optional pre-initialized PhysicalAIAVDatasetInterface. If None, creates one.
+        local_dir: Optional path to local copy of the dataset (e.g. "/Volumes/MicronSSD/pai_coc").
+            When provided, the interface uses files from this directory instead of downloading.
         maybe_stream: Whether to stream data from HuggingFace (if not downloaded locally).
+            Set to False when using local_dir.
         num_history_steps: Number of history trajectory steps (default: 16 for 1.6s at 10Hz).
         num_future_steps: Number of future trajectory steps (default: 64 for 6.4s at 10Hz).
         time_step: Time step between trajectory points in seconds (default: 0.1s = 10Hz).
@@ -68,7 +72,7 @@ def load_physical_aiavdataset(
             - clip_id: The clip ID
     """
     if avdi is None:
-        avdi = physical_ai_av.PhysicalAIAVDatasetInterface()
+        avdi = physical_ai_av.PhysicalAIAVDatasetInterface(local_dir=local_dir)
 
     if camera_features is None:
         camera_features = [
