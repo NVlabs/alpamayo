@@ -34,10 +34,13 @@ def fill_masks_between_special_tokens(
         end_token (str): the end token to look for in the input ids.
         input_ids (B, seq_len): tensor of input ids.
         tokenizer (AutoTokenizer): The tokenizer used to convert tokens to ids.
-        labels_mask (B, seq_len): tensor of labels mask, indicating the positions that should
+        labels_mask (B, seq_len): tensor of labels mask, indicating the positions
+            that should be used for computing the loss. Mutated in-place: positions
+            from each ``start_token`` through the matching ``end_token`` (inclusive)
+            are set to ``True``.
 
     Returns:
-        (B, seq_len): updated labels mask.
+        (B, seq_len): the same ``labels_mask`` tensor with the spans filled in.
     """
     start_idx = (input_ids == tokenizer.convert_tokens_to_ids(start_token)).nonzero()
     end_idx = (input_ids == tokenizer.convert_tokens_to_ids(end_token)).nonzero()
@@ -86,7 +89,7 @@ def get_assistant_mask(
     bos_token: str = "<|im_start|>",
     eos_token: str = "<|im_end|>",
     role: str = "assistant",
-) -> torch.Tensor:
+) -> torch.Tensor | list[bool]:
     """Generate a boolean mask indicating which tokens correspond to the assistant's response.
 
     Args:
@@ -97,10 +100,9 @@ def get_assistant_mask(
         role (str, optional): The assistant role string. Defaults to "assistant".
 
     Returns:
-        torch.Tensor: A boolean mask with True for assistant tokens, False otherwise.
-
-    Reference:
-        Adapted from:
+        A boolean mask with ``True`` for assistant tokens, ``False`` otherwise. Returned
+        as a ``torch.Tensor`` when ``tokens`` is a ``torch.Tensor``, or as a ``list[bool]``
+        when ``tokens`` is a ``list[int]``.
     """
     # Offsets: skip the bos + "assistant\n" (always 3 tokens) and include the eos (+1)
     # for supervision
