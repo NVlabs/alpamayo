@@ -290,7 +290,6 @@ class QwenProcessor:
             )
             index += 1
         text = text.replace("<|placeholder|>", processor.image_token)
-        # print(index, len(image_inputs["image_grid_thw"]))
         assert index == len(image_inputs["image_grid_thw"])
 
         tokenized_data = {"text": text, **image_inputs}
