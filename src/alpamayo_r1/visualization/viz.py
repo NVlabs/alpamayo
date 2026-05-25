@@ -64,8 +64,8 @@ def viz_waypoints_pai(
     intr_df: pd.DataFrame,
     extr_df: pd.DataFrame,
     image,
-    waypoints_gt: np.ndarray,
-    waypoints_pred: np.ndarray,
+    waypoints_gt: np.ndarray | None,
+    waypoints_pred: np.ndarray | None,
 ):
     """Overlay ground-truth and predicted waypoints on the front-wide camera image.
 
@@ -146,8 +146,15 @@ def make_image_grid(images: np.ndarray, columns: int = 4) -> np.ndarray:
     return grid
 
 
-def rotate_90cc(xy):
-    """Rotate 2D coordinates 90 degrees counter-clockwise: (x, y) -> (-y, x)."""
+def rotate_90cc(xy: np.ndarray) -> np.ndarray:
+    """Rotate 2D coordinates 90 degrees counter-clockwise: (x, y) -> (-y, x).
+
+    Args:
+        xy: Array of shape ``(2, N)`` containing the x-row and y-row.
+
+    Returns:
+        Array of shape ``(2, N)`` with the rotated coordinates.
+    """
     return np.stack([-xy[1], xy[0]], axis=0)
 
 
