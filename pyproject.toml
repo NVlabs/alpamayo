@@ -19,13 +19,6 @@ dependencies = [
 requires = ["hatchling>=1.27.0"]
 build-backend = "hatchling.build"
 
-# alpamayo_r1 is a Python namespace package split across two repos:
-#   alpamayo         → models/, action_space/, diffusion/, config.py, helper.py, etc.
-#   alpamayo-recipes → common/, processor/, data/, geometry/, metrics/, utils/, visualization/
-#
-# Install BOTH packages in editable mode so Python merges the two src/ directories:
-#   pip install -e .               (this package — inference models)
-#   pip install -e ../alpamayo-recipes   (shared utils + training recipes)
 [tool.hatch.build.targets.wheel]
 packages = ["src/alpamayo_r1"]
 
