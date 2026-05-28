@@ -35,9 +35,10 @@ def get_component_str(
 
     # if ask this component, we only add start string
     if not ask_for_component:
-        assert (content_str is None) != (padding_str is None), (
-            "Exactly one of content_str or padding_str must be provided"
-        )
+        if (content_str is None) == (padding_str is None):
+            raise ValueError(
+                "Exactly one of content_str or padding_str must be provided"
+            )
         if content_str is not None:
             # add content string directly
             component_str.append(content_str)
@@ -111,8 +112,11 @@ def construct_image(
     Returns:
         image_prompt (list): The list of image description prompts for the VLA model.
     """
-    # assert camera_ids is in ascending order
-    assert torch.all(camera_ids == torch.sort(camera_ids)[0])
+    # camera_ids must be in ascending order (the rest of the function relies on this)
+    if not bool(torch.all(camera_ids == torch.sort(camera_ids)[0])):
+        raise ValueError(
+            f"camera_ids must be sorted in ascending order, got {camera_ids.tolist()}"
+        )
 
     images = data["image_frames"]
     messages = []
@@ -192,7 +196,8 @@ def construct_cot(data: dict[str, Any], ask_for_component: bool = False) -> list
     # if not asking for cot, we must have the cot in data
     cot = None
     if not ask_for_component:
-        assert "cot" in data, "cot not found in data but `cot` in `components_order`"
+        if "cot" not in data:
+            raise ValueError("cot not found in data but `cot` in `components_order`")
         cot = data["cot"]
 
     cot_component = [
@@ -224,9 +229,10 @@ def construct_meta_action(
     # if not asking for meta_action, we must have the meta_action in data
     meta_action = None
     if not ask_for_component:
-        assert "meta_action_strings" in data, (
-            "meta_action not found in data but `meta_action` in `components_order`"
-        )
+        if "meta_action_strings" not in data:
+            raise ValueError(
+                "meta_action not found in data but `meta_action` in `components_order`"
+            )
         meta_action = data["meta_action_strings"]
 
     meta_action_component = [
