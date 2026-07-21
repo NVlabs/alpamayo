@@ -1,0 +1,16 @@
+# .github/ISSUE_TEMPLATE/config.yml — Alpamayo family
+# Place this file at .github/ISSUE_TEMPLATE/config.yml in the repo root.
+#
+# GitHub Issues is reserved for code-level bugs, documentation
+# requests, and feature requests. Usage questions route via the contact_link
+# below; security reporting is handled by the repo's SECURITY.md — GitHub adds
+# its own "Report a security vulnerability" link automatically, so we do NOT
+# ship one here (avoids a duplicate security entry in the chooser).
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 Submit a question (usage, how-to)
+    url: https://forums.developer.nvidia.com/c/autonomous-vehicles/alpamayo/766
+    about: >
+      For usage questions and discussion, post on the Alpamayo NV Developer Forum category. GitHub Issues is reserved for code-level bugs, documentation fixes, and feature requests.
