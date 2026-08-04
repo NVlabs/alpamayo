@@ -32,6 +32,8 @@ from alpamayo_r1.common import logging
 logger = logging.RankedLogger(__name__, rank_zero_only=False)
 logger.setLevel("INFO")
 
+_LOW_SPEED_CURVATURE_THRESHOLD_MPS = 0.6
+
 
 class UnicycleAccelCurvatureActionSpace(ActionSpace):
     """Unicycle Kinematic Model with acceleration and curvature as control inputs."""
@@ -43,7 +45,7 @@ class UnicycleAccelCurvatureActionSpace(ActionSpace):
         curvature_mean: float = 0.0,
         curvature_std: float = 1.0,
         accel_bounds: tuple[float, float] = (-9.8, 9.8),  # min and max bounds for accel
-        curvature_bounds: tuple[float, float] = (-0.2, 0.2),  # min and max bounds for curvature
+        curvature_bounds: tuple[float, float] = (-0.33, 0.33),  # min and max bounds for curvature
         dt: float = 0.1,
         n_waypoints: int = 64,
         theta_lambda: float = 1e-6,
@@ -192,7 +194,7 @@ class UnicycleAccelCurvatureActionSpace(ActionSpace):
         # NOTE: for Tikhonov regularization
         # 1st order means we want small kappa 1st order difference
         # 2nd order means we want small kappa 2nd order difference
-        return solve_xs_eq_y(
+        kappa = solve_xs_eq_y(
             s=s,
             y=dtheta,
             w_data=w,
@@ -203,6 +205,11 @@ class UnicycleAccelCurvatureActionSpace(ActionSpace):
             ridge=self.kappa_ridge,
             dt=self.dt,
         )
+        low_speed = (v[..., :-1].abs() < _LOW_SPEED_CURVATURE_THRESHOLD_MPS) | (
+            v[..., 1:].abs() < _LOW_SPEED_CURVATURE_THRESHOLD_MPS
+        )
+        kappa = kappa.clamp(min=self.curvature_bounds[0], max=self.curvature_bounds[1])
+        return torch.where(low_speed, torch.zeros_like(kappa), kappa)
 
     @torch.no_grad()
     @torch.amp.autocast(device_type="cuda", enabled=False)
