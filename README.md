@@ -158,7 +158,7 @@ You need an NVIDIA GPU with at least **24 GB VRAM** for inference. Tested config
 <details>
 <summary><strong>Can I use this model in production / commercial applications?</strong></summary>
 
-Yes. See the [License](#license) section and the [HuggingFace Model Card](https://huggingface.co/nvidia/Alpamayo-1-10B) for details.
+Yes. See the [License](#license) section and the [HuggingFace Model Card](https://huggingface.co/nvidia/Alpamayo-R1-10B) for details.
 
 </details>
 
@@ -210,7 +210,7 @@ If you encounter OOM errors:
 ## License
 
 - **Inference code**: Apache License 2.0 - see [LICENSE](./LICENSE) for details.
-- **Model weights**: OpenMDW-1.1 - see the [HuggingFace Model Card](https://huggingface.co/nvidia/Alpamayo-1.5-10B) for details.
+- **Model weights**: OpenMDW-1.1 - see the [HuggingFace Model Card](https://huggingface.co/nvidia/Alpamayo-R1-10B) for details.
 
 
 ## Disclaimer
