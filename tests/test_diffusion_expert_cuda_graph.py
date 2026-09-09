@@ -165,6 +165,34 @@ def test_cuda_graph_preserves_dynamic_batches_and_prompt_lengths() -> None:
     }
 
 
+@pytest.mark.skipif(torch.cuda.device_count() < 2, reason="Two CUDA devices are required")
+def test_cuda_graph_uses_expert_device_when_another_device_is_current() -> None:
+    original_device = torch.cuda.current_device()
+    try:
+        torch.cuda.set_device(1)
+        expert = _TinyExpert().eval()
+        original_forward = expert.forward
+        runner = enable_diffusion_expert_cuda_graph(expert, max_batch_size=1)
+        inputs = _expert_inputs(1, 3, 5, 1.0)
+
+        torch.cuda.set_device(0)
+        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+            expected = original_forward(**inputs)
+            with runner.sampling():
+                actual = expert(**inputs)
+
+        torch.cuda.synchronize(1)
+        assert torch.cuda.current_device() == 0
+        torch.testing.assert_close(
+            actual.last_hidden_state,
+            expected.last_hidden_state,
+            rtol=0,
+            atol=0,
+        )
+    finally:
+        torch.cuda.set_device(original_device)
+
+
 def test_cuda_graph_falls_back_when_signature_cache_is_full() -> None:
     expert = _TinyExpert().eval()
     original_forward = expert.forward

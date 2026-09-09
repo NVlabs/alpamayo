@@ -82,19 +82,20 @@ class _GraphEntry:
         prompt_cache: Cache,
     ) -> Any:
         """Copy changing inputs into static buffers and replay the graph."""
-        self.inputs_embeds.copy_(inputs_embeds)
-        self.position_ids.copy_(position_ids)
-        self.attention_mask.copy_(attention_mask)
+        with torch.cuda.device(self.inputs_embeds.device):
+            self.inputs_embeds.copy_(inputs_embeds)
+            self.position_ids.copy_(position_ids)
+            self.attention_mask.copy_(attention_mask)
 
-        if self.loaded_prompt_cache is None or self.loaded_prompt_cache() is not prompt_cache:
-            for layer_index, prompt_layer in enumerate(prompt_cache.layers):
-                if prompt_layer.keys is None or prompt_layer.values is None:
-                    raise ValueError("Expert prompt cache contains an uninitialized layer")
-                self.prompt_keys[layer_index].copy_(prompt_layer.keys)
-                self.prompt_values[layer_index].copy_(prompt_layer.values)
-            self.loaded_prompt_cache = ref(prompt_cache)
+            if self.loaded_prompt_cache is None or self.loaded_prompt_cache() is not prompt_cache:
+                for layer_index, prompt_layer in enumerate(prompt_cache.layers):
+                    if prompt_layer.keys is None or prompt_layer.values is None:
+                        raise ValueError("Expert prompt cache contains an uninitialized layer")
+                    self.prompt_keys[layer_index].copy_(prompt_layer.keys)
+                    self.prompt_values[layer_index].copy_(prompt_layer.values)
+                self.loaded_prompt_cache = ref(prompt_cache)
 
-        self.graph.replay()
+            self.graph.replay()
         output = copy(self.output)
         output.past_key_values = prompt_cache
         return output
@@ -323,9 +324,14 @@ class DiffusionExpertCudaGraph:
             current_stream.wait_stream(warmup_stream)
             torch.cuda.synchronize(parameter.device)
 
-            graph = torch.cuda.CUDAGraph()
-            with torch.cuda.graph(graph, capture_error_mode="thread_local"):
-                static_output = static_forward()
+            with torch.cuda.device(parameter.device):
+                graph = torch.cuda.CUDAGraph()
+                with torch.cuda.graph(
+                    graph,
+                    stream=warmup_stream,
+                    capture_error_mode="thread_local",
+                ):
+                    static_output = static_forward()
             torch.cuda.synchronize(parameter.device)
 
         logger.info(
