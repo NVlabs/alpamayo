@@ -101,8 +101,15 @@ def tokenize_history_trajectory(
     Returns:
         torch.Tensor: [B, n_traj * tokens_per_history_traj]
     """
-    assert "ego_history_xyz" in traj_data
-    assert traj_data["ego_history_xyz"].ndim == 4, "ego_history_xyz must be 4D of [B, n_traj, T, 3]"
+    if "ego_history_xyz" not in traj_data:
+        raise ValueError(
+            f"`traj_data` is missing required key 'ego_history_xyz'; got keys {list(traj_data)}"
+        )
+    if traj_data["ego_history_xyz"].ndim != 4:
+        raise ValueError(
+            "ego_history_xyz must be 4D of [B, n_traj, T, 3], got "
+            f"shape {tuple(traj_data['ego_history_xyz'].shape)}"
+        )
 
     B = traj_data["ego_history_xyz"].shape[0]
     hist_xyz = traj_data["ego_history_xyz"].flatten(start_dim=0, end_dim=1)
