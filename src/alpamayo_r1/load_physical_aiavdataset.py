@@ -43,15 +43,19 @@ def load_physical_aiavdataset(
     Args:
         clip_id: The clip ID to load data from. Can be obtained from vla_golden.parquet.
         t0_us: The timestamp (in microseconds) at which to sample the trajectory.
-            If None, uses a timestamp 5.1s seconds into the clip.
+            Defaults to 5_100_000 (5.1 s into the clip). Must be greater than
+            ``num_history_steps * time_step * 1_000_000`` so the full history
+            window fits inside the clip.
         avdi: Optional pre-initialized PhysicalAIAVDatasetInterface. If None, creates one.
         maybe_stream: Whether to stream data from HuggingFace (if not downloaded locally).
         num_history_steps: Number of history trajectory steps (default: 16 for 1.6s at 10Hz).
         num_future_steps: Number of future trajectory steps (default: 64 for 6.4s at 10Hz).
         time_step: Time step between trajectory points in seconds (default: 0.1s = 10Hz).
         camera_features: List of camera features to load. If None, uses 4 cameras:
-            [CAMERA_FRONT_WIDE_120FOV, CAMERA_FRONT_TELE_30FOV,
-             CAMERA_CROSS_LEFT_120FOV, CAMERA_CROSS_RIGHT_120FOV].
+            [CAMERA_CROSS_LEFT_120FOV, CAMERA_FRONT_WIDE_120FOV,
+             CAMERA_CROSS_RIGHT_120FOV, CAMERA_FRONT_TELE_30FOV].
+            The returned ``image_frames`` are sorted by camera index regardless
+            of the order given here.
         num_frames: Number of frames per camera to load (default: 4).
 
     Returns:
