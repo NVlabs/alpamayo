@@ -85,13 +85,17 @@ def to_device(
     device: str | torch.device | None = None,
     dtype: torch.dtype | None = None,
 ) -> Any:
-    """Recursively cast data into the specified device, dtype."""
+    """Recursively cast data into the specified device, dtype.
+
+    ``dtype`` is only applied to floating-point tensors. Integer and boolean
+    tensors (e.g. ``input_ids``, ``attention_mask``) are moved to ``device``
+    with their dtype preserved so that mixed-precision inference does not
+    accidentally cast token IDs to floats and break embedding lookups.
+    """
     if isinstance(data, torch.Tensor):
-        data = data.to(
-            device=device,
-            dtype=dtype,
-        )
-        return data
+        if dtype is not None and data.is_floating_point():
+            return data.to(device=device, dtype=dtype)
+        return data.to(device=device)
     elif isinstance(data, collections.abc.Mapping):
         return {key: to_device(data[key], device=device, dtype=dtype) for key in data}
     elif isinstance(data, collections.abc.Sequence) and not isinstance(data, (str, bytes)):
