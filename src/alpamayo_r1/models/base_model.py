@@ -21,6 +21,7 @@ from typing import Any
 import einops
 import hydra.utils as hyu
 import torch
+from alpamayo_r1.device import resolve_attn_implementation
 from transformers import (
     AutoProcessor,
     PretrainedConfig,
@@ -223,7 +224,7 @@ class ReasoningVLAConfig(PretrainedConfig):
         self.vlm_name_or_path = vlm_name_or_path
         self.vlm_backend = vlm_backend.lower()
         self.model_dtype = model_dtype
-        self.attn_implementation = attn_implementation
+        self.attn_implementation = resolve_attn_implementation(attn_implementation)
 
         self.traj_tokenizer_cfg = traj_tokenizer_cfg
         self.hist_traj_tokenizer_cfg = hist_traj_tokenizer_cfg

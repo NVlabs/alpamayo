@@ -15,6 +15,7 @@
 
 import einops
 import torch
+from alpamayo_r1.device import autocast_disabled
 from alpamayo_r1.geometry.rotation import round_2pi_torch, so3_to_yaw_torch
 
 from alpamayo_r1.common import logging
@@ -75,7 +76,7 @@ def third_order_D(
     return D
 
 
-@torch.amp.autocast(device_type="cuda", enabled=False)
+@autocast_disabled()
 @torch.no_grad()
 @torch._dynamo.disable()
 def construct_DTD(
@@ -159,7 +160,7 @@ def construct_DTD(
     return DTD
 
 
-@torch.amp.autocast(device_type="cuda", enabled=False)
+@autocast_disabled()
 @torch.no_grad()
 @torch._dynamo.disable()
 def solve_single_constraint(
@@ -206,7 +207,7 @@ def solve_single_constraint(
     # (A^TA + D^TD + ridge * I) x = A^T b
     A_data = torch.eye(N, dtype=dtype, device=device).expand(*lead, N, N)
     Aw_data = A_data * w_data.unsqueeze(-1)
-    with torch.amp.autocast(device_type="cuda", enabled=False):
+    with autocast_disabled():
         ATA = einops.einsum(Aw_data, A_data, "... i j, ... i k -> ... j k")
         rhs = einops.einsum(Aw_data, x_target, "... i j, ... i -> ... j")
 
@@ -235,7 +236,7 @@ def solve_single_constraint(
     return x
 
 
-@torch.amp.autocast(device_type="cuda", enabled=False)
+@autocast_disabled()
 @torch.no_grad()
 @torch._dynamo.disable()
 def solve_xs_eq_y(
@@ -278,7 +279,7 @@ def solve_xs_eq_y(
     # (A^TA + D^TD + ridge * I) x = A^T b
     A_data = torch.diag_embed(s)
     Aw_data = A_data * w_data.unsqueeze(-1)
-    with torch.amp.autocast(device_type="cuda", enabled=False):
+    with autocast_disabled():
         ATA = einops.einsum(Aw_data, A_data, "... i j, ... i k -> ... j k")
         rhs = einops.einsum(Aw_data, y, "... i j, ... i -> ... j")
 
@@ -314,7 +315,7 @@ def solve_xs_eq_y(
 
 
 @torch.no_grad()
-@torch.amp.autocast(device_type="cuda", enabled=False)
+@autocast_disabled()
 @torch._dynamo.disable()
 def dxy_theta_to_v_without_v0(
     dxy: torch.Tensor,
@@ -366,7 +367,7 @@ def dxy_theta_to_v_without_v0(
     A_data[..., sin_rows, cols] = sin_theta[..., :-1]
     A_data[..., sin_rows, cols + 1] = sin_theta[..., 1:]
     Aw_data = A_data * torch.repeat_interleave(w, 2, dim=-1).unsqueeze(-1)
-    with torch.amp.autocast(device_type="cuda", enabled=False):
+    with autocast_disabled():
         ATA = einops.einsum(Aw_data, A_data, "... i j, ... i k -> ... j k")
         rhs = einops.einsum(Aw_data, b_data, "... i j, ... i -> ... j")
 
@@ -400,7 +401,7 @@ def dxy_theta_to_v_without_v0(
 
 
 @torch.no_grad()
-@torch.amp.autocast(device_type="cuda", enabled=False)
+@autocast_disabled()
 @torch._dynamo.disable()
 def dxy_theta_to_v(
     dxy: torch.Tensor,
@@ -448,7 +449,7 @@ def dxy_theta_to_v(
     A_data[..., sin_rows, cols] = sin_theta[..., :-1]
     A_data[..., sin_rows, cols + 1] = sin_theta[..., 1:]
     Aw_data = A_data * torch.repeat_interleave(w, 2, dim=-1).unsqueeze(-1)
-    with torch.amp.autocast(device_type="cuda", enabled=False):
+    with autocast_disabled():
         ATA = einops.einsum(Aw_data, A_data, "... i j, ... i k -> ... j k")
         # rhs is A^T w_data b, but we need to include the x_init terms into the rhs as it is a
         # constant.
@@ -486,7 +487,7 @@ def dxy_theta_to_v(
 
 
 @torch.no_grad()
-@torch.amp.autocast(device_type="cuda", enabled=False)
+@autocast_disabled()
 @torch._dynamo.disable()
 def theta_smooth(
     traj_future_rot: torch.Tensor,

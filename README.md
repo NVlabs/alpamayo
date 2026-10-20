@@ -87,6 +87,21 @@ Get your access token at: https://huggingface.co/settings/tokens
 
 > 💡 **Tip**: For more details on HuggingFace authentication, see the [official documentation](https://huggingface.co/docs/huggingface_hub/guides/cli).
 
+### How to run the same on Intel's XPU
+
+Skip `uv sync` (it installs the CUDA torch build and flash-attn) and use the XPU wheel in a Python 3.12 environment instead:
+
+```bash
+python3 -m venv ar1_xpu && source ar1_xpu/bin/activate
+pip install torch torchvision --index-url https://download.pytorch.org/whl/xpu
+pip install colorlog einops hydra-core physical_ai_av pillow scipy transformers==4.57.1
+pip install -e . --no-deps
+ZE_AFFINITY_MASK=0 python src/alpamayo_r1/test_inference.py
+```
+
+The device is picked automatically (XPU, then CUDA, then CPU) and attention falls back to `sdpa` when flash-attn is not usable.
+The HuggingFace authentication step above still applies. The optional CUDA graph acceleration and the notebook stay CUDA-only.
+
 ## Running Inference
 
 ### Test script
