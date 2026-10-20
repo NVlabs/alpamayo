@@ -63,9 +63,8 @@ def test_autocast_disabled_only_touches_present_backends() -> None:
         with dev.autocast_disabled():
             pass
         assert [call.args for call in autocast.call_args_list] == [("cpu",), ("cuda",)]
-    with fake_host():
-        with torch.autocast("cpu", dtype=torch.bfloat16), dev.autocast_disabled():
-            assert (torch.ones(2, 2) @ torch.ones(2, 2)).dtype == torch.float32
+    with fake_host(), torch.autocast("cpu", dtype=torch.bfloat16), dev.autocast_disabled():
+        assert (torch.ones(2, 2) @ torch.ones(2, 2)).dtype == torch.float32
 
 
 @pytest.mark.skipif(not HAS_XPU, reason="XPU is required")
